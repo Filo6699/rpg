@@ -2,7 +2,6 @@ use std::{
     io::{stdout, Stdout},
     error::Error,
 };
-use itertools::Itertools;
 use ratatui::{prelude::*, widgets::{Paragraph, BorderType, Block, Borders}};
 use crossterm::{
     execute,
@@ -26,28 +25,6 @@ pub fn restore_terminal(mut terminal: Terminal) -> Result<()> {
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     Ok(())
-}
-
-pub fn calculate_layout(area: Rect) -> (Rect, Vec<Vec<Rect>>) {
-    let layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(vec![Constraint::Length(1), Constraint::Min(0)])
-        .split(area);
-    let title_area = layout[0];
-    let main_areas = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(vec![Constraint::Max(4); 9])
-        .split(layout[1])
-        .iter()
-        .map(|&area| {
-            Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-                .split(area)
-                .to_vec()
-        })
-        .collect_vec();
-    (title_area, main_areas)
 }
 
 pub fn render_border_type(
