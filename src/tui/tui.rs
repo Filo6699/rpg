@@ -20,11 +20,12 @@ pub fn run(terminal: &mut Terminal) -> Result<()> {
             return Ok(());
         }
 
-        game.update();
+        // game.update();
 
-        let mut tick_text = game.tick_test.to_string();
+        // let mut tick_text = game.get_text();
+        let mut tick_text = String::from("i wanna die");
         tick_text.push_str("\n\nPress q to exit");
-        let title = String::from("Ticks");
+        let title = String::from("dxfcygvubhnjmkll;");
         let parag = Paragraph::new(tick_text);
         terminal.draw(|f| ui(f, &title, &parag))?;
     }
