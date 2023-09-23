@@ -2,7 +2,7 @@ use std::{
     io::{stdout, Stdout},
     error::Error,
 };
-use ratatui::{prelude::*, widgets::{Paragraph, BorderType, Block, Borders}};
+use ratatui::{prelude::*, widgets::{Paragraph, BorderType, Block, Borders, block::{Title, Position}}};
 use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -30,13 +30,37 @@ pub fn restore_terminal(mut terminal: Terminal) -> Result<()> {
 pub fn render_border_type(
     paragraph: &Paragraph,
     title: &String,
-    border_type: BorderType,
     frame: &mut Frame,
     area: Rect,
   ) {
     let block = Block::new()
         .borders(Borders::ALL)
-        .border_type(border_type)
+        .border_type(BorderType::Rounded)
         .title(title.clone());
+    frame.render_widget(paragraph.clone().block(block), area);
+}
+
+
+pub fn render_message(
+    message: &String,
+    frame: &mut Frame,
+) {
+    let half = (std::cmp::max(message.len() / 2, 5)) as u16;
+    let area = Rect {
+        x: frame.size().width  / 2 - half - 1,
+        y: frame.size().height / 2 - 2,
+        width: std::cmp::max(message.len() as u16 + 2, 13),
+        height: 4
+    };
+    let paragraph = Paragraph::new(message.clone());
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .title(String::from("Message"))
+        .title(
+            Title::from("Press Enter")
+                .position(Position::Bottom)
+                .alignment(Alignment::Center)
+        );
     frame.render_widget(paragraph.clone().block(block), area);
 }

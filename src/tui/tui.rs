@@ -1,12 +1,20 @@
 use std::{
     error::Error,
-    io::Stdout, ops::ControlFlow, time::Duration
+    io::Stdout,
+    ops::ControlFlow,
+    time::Duration
 };
 use crossterm::event::{self, Event, KeyCode};
-use ratatui::{widgets::{Paragraph, BorderType}, prelude::{CrosstermBackend, Rect}};
+use ratatui::{
+    widgets::Paragraph,
+    prelude::{CrosstermBackend, Rect}
+};
 
 use crate::game::game::Game;
-use super::utils::render_border_type;
+use super::utils::{
+    render_border_type,
+    render_message,
+};
 
 type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stdout>>;
 type Terminal = ratatui::Terminal<CrosstermBackend<Stdout>>;
@@ -20,25 +28,27 @@ pub fn run(terminal: &mut Terminal) -> Result<()> {
             return Ok(());
         }
 
-        // game.update();
-
-        // let mut tick_text = game.get_text();
-        let mut tick_text = String::from("i wanna die");
-        tick_text.push_str("\n\nPress q to exit");
-        let title = String::from("dxfcygvubhnjmkll;");
-        let parag = Paragraph::new(tick_text);
-        terminal.draw(|f| ui(f, &title, &parag))?;
+        terminal.draw(|f| ui(f, &mut game))?;
     }
 }
 
-fn ui(frame: &mut Frame, title: &String, paragraph: &Paragraph) {
-  let area = Rect {
-    x: 0,
-    y: 0,
-    width: frame.size().width,
-    height: frame.size().height
-  };
-  render_border_type(&paragraph, &title, BorderType::Rounded, frame, area);
+fn ui(frame: &mut Frame, game: &mut Game) {
+    let area = Rect {
+        x: 0,
+        y: 0,
+        width: frame.size().width,
+        height: frame.size().height
+    };
+    let mut tick_text = game.get_text();
+    tick_text.push_str("\n\nPress q to exit");
+
+    let title = String::from("dxfcygvubhnjmkll;");
+    let paragraph = Paragraph::new(tick_text);
+    render_border_type(&paragraph, &title, frame, area);
+
+    if let Some(message) = game.get_message() {
+        render_message(message, frame);
+    }
 }
 
 fn handle_events(game: &mut Game) -> Result<ControlFlow<()>> {
