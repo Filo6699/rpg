@@ -1,20 +1,20 @@
 #[forbid(unsafe_code)]
 use std::error::Error;
 
-mod tui;
 mod game;
-use crate::tui::utils::*;
+mod tui;
 use crate::tui::tui::run;
+use crate::tui::utils::*;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn main() -> Result<()> {
-  let mut terminal = setup_terminal()?;
-  let result = run(&mut terminal);
-  restore_terminal(terminal)?;
+    let mut terminal = setup_terminal()?;
+    let result = run(&mut terminal);
+    restore_terminal(terminal)?;
 
-  if let Err(err) = result {
-      eprintln!("{err:?}");
-  }
-  Ok(())
+    if let Err(err) = result {
+        eprintln!("{err:?}");
+    }
+    Ok(())
 }

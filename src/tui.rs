@@ -1,2 +1,2 @@
-pub mod utils;
 pub mod tui;
+pub mod utils;

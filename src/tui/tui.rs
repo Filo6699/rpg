@@ -1,25 +1,16 @@
-use std::{
-    error::Error,
-    io::Stdout,
-    ops::ControlFlow,
-    time::Duration
-};
 use crossterm::event::{self, Event, KeyCode};
 use ratatui::{
+    prelude::{CrosstermBackend, Rect},
     widgets::Paragraph,
-    prelude::{CrosstermBackend, Rect}
 };
+use std::{error::Error, io::Stdout, ops::ControlFlow, time::Duration};
 
+use super::utils::{render_border_type, render_message};
 use crate::game::game::Game;
-use super::utils::{
-    render_border_type,
-    render_message,
-};
 
 type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stdout>>;
 type Terminal = ratatui::Terminal<CrosstermBackend<Stdout>>;
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
-
 
 pub fn run(terminal: &mut Terminal) -> Result<()> {
     let mut game = Game::new();
@@ -37,7 +28,7 @@ fn ui(frame: &mut Frame, game: &mut Game) {
         x: 0,
         y: 0,
         width: frame.size().width,
-        height: frame.size().height
+        height: frame.size().height,
     };
     let mut tick_text = game.get_text();
     tick_text.push_str("\n\nPress q to exit");
@@ -52,13 +43,13 @@ fn ui(frame: &mut Frame, game: &mut Game) {
 }
 
 fn handle_events(game: &mut Game) -> Result<ControlFlow<()>> {
-  if event::poll(Duration::from_millis(100))? {
-      if let Event::Key(key) = event::read()? {
-          game.handle_key_press(key);
-          if let KeyCode::Char('q') = key.code {
-              return Ok(ControlFlow::Break(()));
-          }
-      }
-  }
-  Ok(ControlFlow::Continue(()))
+    if event::poll(Duration::from_millis(100))? {
+        if let Event::Key(key) = event::read()? {
+            game.handle_key_press(key);
+            if let KeyCode::Char('q') = key.code {
+                return Ok(ControlFlow::Break(()));
+            }
+        }
+    }
+    Ok(ControlFlow::Continue(()))
 }

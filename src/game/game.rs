@@ -1,29 +1,37 @@
-use crossterm::event::{KeyEvent, KeyCode};
+use crossterm::event::{KeyCode, KeyEvent};
+
+use super::utils::{ENEMY_WON, PLAYER_WON};
 
 #[derive(Clone)]
 struct Entity {
-    pub health: u32,
+    health: u32,
     damage: u32,
-    name: String
+    name: String,
 }
 
 impl Entity {
     pub fn new(hp: u32, dmg: u32, name: &String) -> Entity {
         Entity {
             health: hp,
-            damage: dmg, 
-            name: name.clone()
+            damage: dmg,
+            name: name.clone(),
+        }
+    }
+
+    pub fn default() -> Entity {
+        Entity {
+            health: 100,
+            damage: 10,
+            name: "Player".into(),
         }
     }
 }
 
-const PLAYER_WON: i32 = 1;
-const ENEMY_WON: i32 = 2;
 struct Battle {
     player: Entity,
     enemy: Entity,
     player_turn: bool,
-    winner: Option<i32>
+    winner: Option<i32>,
 }
 
 impl Battle {
@@ -51,7 +59,9 @@ impl Battle {
             self.player.health -= self.enemy.damage
         }
         self.player_turn = !self.player_turn;
-      }
+    }
+
+    fn handle_key(&mut self, _: KeyCode) {}
 }
 
 pub struct Game {
@@ -62,9 +72,8 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        let player_name = String::from("Player");
         Game {
-            player: Entity::new(100, 10, &player_name),
+            player: Entity::default(),
             battle: None,
             message_queue: vec![],
         }
@@ -82,7 +91,7 @@ impl Game {
         if let Some(battle) = &mut self.battle {
             let plr = &battle.player;
             let enemy = &battle.enemy;
-            
+
             let mut data = format!("{} is fighting {}", plr.name, enemy.name);
 
             // Player's health
@@ -91,7 +100,7 @@ impl Game {
             // Enemy's health
             data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
 
-            return data
+            return data;
         } else {
             return String::from("");
         }
@@ -104,26 +113,28 @@ impl Game {
             }
             return;
         }
+        if let Some(battle) = &mut self.battle {
+            battle.handle_key(event.code);
+            battle.tick();
+            if battle.winner.is_none() {
+                return;
+            }
+            let msg: String;
+            let winner = battle.winner.unwrap();
+            match winner {
+                PLAYER_WON => msg = format!("You won the battle against {}!", battle.enemy.name),
+                ENEMY_WON => msg = format!("You died in a battle against {}.", battle.enemy.name),
+                _ => panic!("Wrong value of battle.winner: {}", winner),
+            }
+            self.message_queue.push(msg);
+            self.battle = None;
+            return;
+        }
         if KeyCode::Char('t') == event.code {
             if self.battle.is_none() {
                 let enemy_name = String::from("Bebra");
                 let enemy = Entity::new(10, 10, &enemy_name);
                 self.battle = Some(Battle::new(&self.player, &enemy));
-            }
-        }
-        if KeyCode::Char('a') == event.code {
-            if let Some(battle) = &mut self.battle {
-                battle.tick();
-                if battle.winner.is_none() { return; }
-                let msg: String;
-                let winner = battle.winner.unwrap();
-                match winner {
-                    PLAYER_WON => msg = format!("You won the battle against {}!", battle.enemy.name),
-                    ENEMY_WON  => msg = format!("You died in a battle against {}.", battle.enemy.name),
-                    _ => msg = format!("Wrong value of battle.winner: {}", winner),
-                }
-                self.message_queue.push(msg);
-                self.battle = None;
             }
         }
     }
