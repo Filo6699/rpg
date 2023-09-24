@@ -30,10 +30,12 @@ fn ui(frame: &mut Frame, game: &mut Game) {
         width: frame.size().width,
         height: frame.size().height,
     };
-    let mut tick_text = game.get_text();
-    tick_text.push_str("\n\nPress q to exit");
+    let tick_text = match game.get_text() {
+        Some(t) => t,
+        None => "Press q to exit".into(),
+    };
 
-    let title = String::from("dxfcygvubhnjmkll;");
+    let title = String::from("YAPPY");
     let paragraph = Paragraph::new(tick_text);
     render_border_type(&paragraph, &title, frame, area);
 

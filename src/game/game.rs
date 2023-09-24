@@ -64,18 +64,23 @@ impl Battle {
     fn handle_key(&mut self, _: KeyCode) {}
 }
 
+enum Screen {
+    Battle(Battle),
+    None
+}
+
 pub struct Game {
     player: Entity,
-    battle: Option<Battle>,
     message_queue: Vec<String>,
+    screen: Screen,
 }
 
 impl Game {
     pub fn new() -> Game {
         Game {
             player: Entity::default(),
-            battle: None,
             message_queue: vec![],
+            screen: Screen::None,
         }
     }
 
@@ -87,23 +92,28 @@ impl Game {
         self.message_queue.remove(0);
     }
 
-    pub fn get_text(&mut self) -> String {
-        if let Some(battle) = &mut self.battle {
-            let plr = &battle.player;
-            let enemy = &battle.enemy;
+    fn battle_text(battle: &mut Battle) -> String {
+        let plr = &battle.player;
+        let enemy = &battle.enemy;
 
-            let mut data = format!("{} is fighting {}", plr.name, enemy.name);
+        let mut data = format!("{} is fighting {}", plr.name, enemy.name);
 
-            // Player's health
-            data.push_str(&format!("\n{} hp: {}", plr.name, plr.health));
+        // Player's health
+        data.push_str(&format!("\n{} hp: {}", plr.name, plr.health));
 
-            // Enemy's health
-            data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
+        // Enemy's health
+        data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
 
-            return data;
-        } else {
-            return String::from("");
-        }
+        return data;
+    }
+
+    pub fn get_text(&mut self) -> Option<String> {
+        return match &mut self.screen {
+            Screen::Battle(b) => {
+                Some(Game::battle_text(b))
+            },
+            Screen::None => None,
+        };
     }
 
     pub fn handle_key_press(&mut self, event: KeyEvent) {
@@ -113,28 +123,30 @@ impl Game {
             }
             return;
         }
-        if let Some(battle) = &mut self.battle {
-            battle.handle_key(event.code);
-            battle.tick();
-            if battle.winner.is_none() {
+        match &mut self.screen {
+            Screen::Battle(battle) => {
+                battle.handle_key(event.code);
+                battle.tick();
+                if battle.winner.is_none() {
+                    return;
+                }
+                let msg: String;
+                let winner = battle.winner.unwrap();
+                match winner {
+                    PLAYER_WON => msg = format!("You won the battle against {}!", battle.enemy.name),
+                    ENEMY_WON => msg = format!("You died in a battle against {}.", battle.enemy.name),
+                    _ => panic!("Wrong value of battle.winner: {}", winner),
+                }
+                self.message_queue.push(msg);
+                self.screen = Screen::None;
                 return;
-            }
-            let msg: String;
-            let winner = battle.winner.unwrap();
-            match winner {
-                PLAYER_WON => msg = format!("You won the battle against {}!", battle.enemy.name),
-                ENEMY_WON => msg = format!("You died in a battle against {}.", battle.enemy.name),
-                _ => panic!("Wrong value of battle.winner: {}", winner),
-            }
-            self.message_queue.push(msg);
-            self.battle = None;
-            return;
-        }
-        if KeyCode::Char('t') == event.code {
-            if self.battle.is_none() {
-                let enemy_name = String::from("Bebra");
-                let enemy = Entity::new(10, 10, &enemy_name);
-                self.battle = Some(Battle::new(&self.player, &enemy));
+            },
+            Screen::None => {
+                if KeyCode::Char('t') == event.code {
+                    let enemy_name = String::from("Bebra");
+                    let enemy = Entity::new(80, 12, &enemy_name);
+                    self.screen = Screen::Battle(Battle::new(&self.player, &enemy));
+                }
             }
         }
     }
