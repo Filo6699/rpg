@@ -33,7 +33,7 @@ pub fn restore_terminal(mut terminal: Terminal) -> Result<()> {
     Ok(())
 }
 
-pub fn render_border_type(paragraph: &Paragraph, title: &String, frame: &mut Frame, area: Rect) {
+pub fn render_border_type(paragraph: &Paragraph, title: &str, frame: &mut Frame, area: Rect) {
     let block = Block::new()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)

@@ -3,18 +3,18 @@ use crossterm::event::{KeyCode, KeyEvent};
 use super::utils::{ENEMY_WON, PLAYER_WON};
 
 #[derive(Clone)]
-struct Entity {
-    health: u32,
+pub struct Entity {
+    pub health: u32,
     damage: u32,
-    name: String,
+    pub name: String,
 }
 
 impl Entity {
-    pub fn new(hp: u32, dmg: u32, name: &String) -> Entity {
+    pub fn new(hp: u32, dmg: u32, name: &str) -> Entity {
         Entity {
             health: hp,
             damage: dmg,
-            name: name.clone(),
+            name: name.into(),
         }
     }
 
@@ -27,11 +27,11 @@ impl Entity {
     }
 }
 
-struct Battle {
-    player: Entity,
-    enemy: Entity,
+pub struct Battle {
+    pub player: Entity,
+    pub enemy: Entity,
     player_turn: bool,
-    winner: Option<i32>,
+    pub winner: Option<i32>,
 }
 
 impl Battle {
@@ -64,15 +64,15 @@ impl Battle {
     fn handle_key(&mut self, _: KeyCode) {}
 }
 
-enum Screen {
+pub enum Screen {
     Battle(Battle),
-    None
+    Menu,
 }
 
 pub struct Game {
     player: Entity,
     message_queue: Vec<String>,
-    screen: Screen,
+    pub screen: Screen,
 }
 
 impl Game {
@@ -80,7 +80,7 @@ impl Game {
         Game {
             player: Entity::default(),
             message_queue: vec![],
-            screen: Screen::None,
+            screen: Screen::Menu,
         }
     }
 
@@ -90,30 +90,6 @@ impl Game {
 
     fn consume_message(&mut self) {
         self.message_queue.remove(0);
-    }
-
-    fn battle_text(battle: &mut Battle) -> String {
-        let plr = &battle.player;
-        let enemy = &battle.enemy;
-
-        let mut data = format!("{} is fighting {}", plr.name, enemy.name);
-
-        // Player's health
-        data.push_str(&format!("\n{} hp: {}", plr.name, plr.health));
-
-        // Enemy's health
-        data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
-
-        return data;
-    }
-
-    pub fn get_text(&mut self) -> Option<String> {
-        return match &mut self.screen {
-            Screen::Battle(b) => {
-                Some(Game::battle_text(b))
-            },
-            Screen::None => None,
-        };
     }
 
     pub fn handle_key_press(&mut self, event: KeyEvent) {
@@ -130,18 +106,16 @@ impl Game {
                 if battle.winner.is_none() {
                     return;
                 }
-                let msg: String;
                 let winner = battle.winner.unwrap();
-                match winner {
-                    PLAYER_WON => msg = format!("You won the battle against {}!", battle.enemy.name),
-                    ENEMY_WON => msg = format!("You died in a battle against {}.", battle.enemy.name),
+                let msg = match winner {
+                    PLAYER_WON => format!("You won the battle against {}!", battle.enemy.name),
+                    ENEMY_WON => format!("You died in a battle against {}.", battle.enemy.name),
                     _ => panic!("Wrong value of battle.winner: {}", winner),
-                }
+                };
                 self.message_queue.push(msg);
-                self.screen = Screen::None;
-                return;
-            },
-            Screen::None => {
+                self.screen = Screen::Menu;
+            }
+            Screen::Menu => {
                 if KeyCode::Char('t') == event.code {
                     let enemy_name = String::from("Bebra");
                     let enemy = Entity::new(80, 12, &enemy_name);

@@ -5,8 +5,8 @@ use ratatui::{
 };
 use std::{error::Error, io::Stdout, ops::ControlFlow, time::Duration};
 
+use super::super::game::classes::Game;
 use super::utils::{render_border_type, render_message};
-use crate::game::game::Game;
 
 type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stdout>>;
 type Terminal = ratatui::Terminal<CrosstermBackend<Stdout>>;
@@ -30,12 +30,9 @@ fn ui(frame: &mut Frame, game: &mut Game) {
         width: frame.size().width,
         height: frame.size().height,
     };
-    let tick_text = match game.get_text() {
-        Some(t) => t,
-        None => "Press q to exit".into(),
-    };
+    let tick_text = game.render();
 
-    let title = String::from("YAPPY");
+    let title = game.get_screen_name();
     let paragraph = Paragraph::new(tick_text);
     render_border_type(&paragraph, &title, frame, area);
 

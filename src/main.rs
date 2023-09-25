@@ -1,9 +1,8 @@
-#[forbid(unsafe_code)]
 use std::error::Error;
 
 mod game;
 mod tui;
-use crate::tui::tui::run;
+use crate::tui::ui::run;
 use crate::tui::utils::*;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
