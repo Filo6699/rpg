@@ -1,3 +1,2 @@
-pub mod classes;
+pub mod game_class;
 pub mod render;
-pub mod utils;

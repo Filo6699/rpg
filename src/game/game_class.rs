@@ -1,6 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use std::sync::{Arc, Mutex};
 
-use super::utils::{ENEMY_WON, PLAYER_WON};
+type MessageQueue = Arc<Mutex<Vec<String>>>;
 
 #[derive(Clone)]
 pub struct Entity {
@@ -18,6 +19,7 @@ impl Entity {
         }
     }
 
+    #[allow(dead_code)]
     pub fn default() -> Entity {
         Entity {
             health: 3,
@@ -27,11 +29,19 @@ impl Entity {
     }
 }
 
+#[derive(Copy, Clone)]
+pub enum BattleWinner {
+    Player,
+    Enemy,
+}
+
 pub struct Battle {
     pub player: Entity,
     pub enemy: Entity,
     player_turn: bool,
-    pub winner: Option<i32>,
+    winner: Option<BattleWinner>,
+
+    msg_queue: Option<MessageQueue>,
 }
 
 impl Battle {
@@ -41,19 +51,38 @@ impl Battle {
             enemy: enemy.clone(),
             player_turn: true,
             winner: None,
+
+            msg_queue: None,
         }
+    }
+
+    pub fn set_message_queue(&mut self, message_queue: MessageQueue) {
+        self.msg_queue = Some(message_queue);
+    }
+
+    fn battle_finished(&mut self) {
+        if let Some(q) = &mut self.msg_queue {
+            let mut queue = q.lock().unwrap();
+            let msg = match self.winner.unwrap() {
+                BattleWinner::Player => format!("You won the battle against {}!", self.enemy.name),
+                BattleWinner::Enemy => format!("You died in a battle against {}.", self.enemy.name),
+            };
+            queue.push(msg);
+        };
     }
 
     fn tick(&mut self) {
         if self.player_turn {
             if self.enemy.health <= self.player.damage {
-                self.winner = Some(PLAYER_WON);
+                self.winner = Some(BattleWinner::Player);
+                self.battle_finished();
                 return;
             }
             self.enemy.health -= self.player.damage
         } else {
             if self.player.health <= self.enemy.damage {
-                self.winner = Some(ENEMY_WON);
+                self.winner = Some(BattleWinner::Enemy);
+                self.battle_finished();
                 return;
             }
             self.player.health -= self.enemy.damage
@@ -76,6 +105,8 @@ pub struct Player {
     xp: u64,
     needed_xp: u64,
     name: String,
+
+    msg_queue: Option<MessageQueue>,
 }
 
 impl Player {
@@ -113,11 +144,18 @@ impl Player {
 
     pub fn add_xp(&mut self, xp: u64) {
         self.xp += xp;
+        let prev_level = self.level;
         while self.xp >= self.needed_xp {
             self.level += 1;
             ( self.base_health, self.base_damage ) = Player::stats_from_level(self.level);
             self.needed_xp = Player::calculate_needed_xp(self.level);
         };
+        if self.level != prev_level {
+            if let Some(q) = &mut self.msg_queue {
+                let mut queue = q.lock().unwrap();
+                queue.push("Level up!".into());
+            }
+        }
     }
 
     pub fn default() -> Player {
@@ -129,7 +167,13 @@ impl Player {
             name: "Player".into(),
             xp: 0,
             needed_xp: Player::calculate_needed_xp(1),
+
+            msg_queue: None,
         }
+    }
+
+    pub fn set_message_queue(&mut self, msg_queue: MessageQueue) {
+        self.msg_queue = Some(msg_queue);
     }
 
     pub fn to_entity(&self) -> Entity {
@@ -143,25 +187,39 @@ impl Player {
 
 pub struct Game {
     pub player: Player,
-    message_queue: Vec<String>,
+    message_queue: MessageQueue,
     pub screen: Screen,
 }
 
 impl Game {
     pub fn new() -> Game {
-        Game {
+        let mut game = Game {
             player: Player::default(),
-            message_queue: vec![],
+            message_queue: Arc::new(Mutex::new(vec![])),
             screen: Screen::Menu,
-        }
+        };
+        game.player.set_message_queue(game.create_msgq_reference());
+        game
     }
 
-    pub fn get_message(&mut self) -> Option<&String> {
-        self.message_queue.get(0)
+    fn create_msgq_reference(&self) -> MessageQueue {
+        Arc::clone(&self.message_queue)
+    }
+
+    // pub fn add_message(&mut self, msg: String) {
+    //     let re = Arc::clone(&self.message_queue);
+    //     let mut queue = re.lock().unwrap();
+    //     queue.push(msg);
+    // }
+
+    pub fn get_message(&mut self) -> Option<String> {
+        let queue = self.message_queue.lock().unwrap();
+        queue.get(0).cloned()
     }
 
     fn consume_message(&mut self) {
-        self.message_queue.remove(0);
+        let mut queue = self.message_queue.lock().unwrap();
+        queue.remove(0);
     }
 
     pub fn handle_key_press(&mut self, event: KeyEvent) {
@@ -178,22 +236,20 @@ impl Game {
                 if battle.winner.is_none() {
                     return;
                 }
-                let winner = battle.winner.unwrap();
-                let msg = match winner {
-                    PLAYER_WON => format!("You won the battle against {}!", battle.enemy.name),
-                    ENEMY_WON => format!("You died in a battle against {}.", battle.enemy.name),
-                    _ => panic!("Wrong value of battle.winner: {}", winner),
+                let xp_gain = match battle.winner.unwrap() {
+                    BattleWinner::Player => 120,
+                    BattleWinner::Enemy  => 50,
                 };
-                self.player.add_xp(5000);
-                self.message_queue.push(msg);
+                self.player.add_xp(xp_gain);
                 self.screen = Screen::Menu;
             }
             Screen::Menu => {
                 if KeyCode::Char('t') == event.code {
-                    let enemy = Entity::default();
-                    // let enemy_name = String::from("Bebra");
-                    // let enemy = Entity::new(80, 12, &enemy_name);
-                    self.screen = Screen::Battle(Battle::new(&self.player, &enemy));
+                    let enemy_name = String::from("Bebra");
+                    let enemy = Entity::new(100, 30, &enemy_name);
+                    let mut battle = Battle::new(&self.player, &enemy);
+                    battle.set_message_queue(self.create_msgq_reference());
+                    self.screen = Screen::Battle(battle);
                 }
             }
         }
