@@ -23,7 +23,14 @@ impl Game {
 
                 data
             }
-            Screen::Menu => "Press q to exit".into(),
+            Screen::Menu => format!("{}\nHP: {}\nDamage: {}\nLevel {}: {}/{}\n\nPress q to exit",
+                self.player.get_name(),
+                self.player.get_health(),
+                self.player.get_damage(),
+                self.player.get_level(),
+                self.player.get_xp(),
+                self.player.get_nxp(),
+            ),
         }
     }
 }
