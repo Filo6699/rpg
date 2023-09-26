@@ -95,7 +95,7 @@ impl Battle {
 
 pub enum Screen {
     Battle(Battle),
-    Menu,
+    Stats,
 }
 
 pub struct Player {
@@ -135,11 +135,11 @@ impl Player {
     }
 
     fn calculate_needed_xp(level: u32) -> u64 {
-        (level.pow(2)*100).into()
+        (level.pow(2) * 100).into()
     }
 
     fn stats_from_level(level: u32) -> (u32, u32) {
-        ( level * 30 + 100, level * 2 + 10)
+        (level * 30 + 100, level * 2 + 10)
     }
 
     pub fn add_xp(&mut self, xp: u64) {
@@ -147,9 +147,9 @@ impl Player {
         let prev_level = self.level;
         while self.xp >= self.needed_xp {
             self.level += 1;
-            ( self.base_health, self.base_damage ) = Player::stats_from_level(self.level);
+            (self.base_health, self.base_damage) = Player::stats_from_level(self.level);
             self.needed_xp = Player::calculate_needed_xp(self.level);
-        };
+        }
         if self.level != prev_level {
             if let Some(q) = &mut self.msg_queue {
                 let mut queue = q.lock().unwrap();
@@ -159,7 +159,7 @@ impl Player {
     }
 
     pub fn default() -> Player {
-        let ( health, damage ) = Player::stats_from_level(1);
+        let (health, damage) = Player::stats_from_level(1);
         Player {
             level: 1,
             base_health: health,
@@ -177,11 +177,7 @@ impl Player {
     }
 
     pub fn to_entity(&self) -> Entity {
-        Entity::new(
-            self.base_health,
-            self.base_damage,
-            &self.name,
-        )
+        Entity::new(self.base_health, self.base_damage, &self.name)
     }
 }
 
@@ -196,7 +192,7 @@ impl Game {
         let mut game = Game {
             player: Player::default(),
             message_queue: Arc::new(Mutex::new(vec![])),
-            screen: Screen::Menu,
+            screen: Screen::Stats,
         };
         game.player.set_message_queue(game.create_msgq_reference());
         game
@@ -238,12 +234,12 @@ impl Game {
                 }
                 let xp_gain = match battle.winner.unwrap() {
                     BattleWinner::Player => 120,
-                    BattleWinner::Enemy  => 50,
+                    BattleWinner::Enemy => 50,
                 };
                 self.player.add_xp(xp_gain);
-                self.screen = Screen::Menu;
+                self.screen = Screen::Stats;
             }
-            Screen::Menu => {
+            Screen::Stats => {
                 if KeyCode::Char('t') == event.code {
                     let enemy_name = String::from("Bebra");
                     let enemy = Entity::new(100, 30, &enemy_name);

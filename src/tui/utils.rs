@@ -46,7 +46,7 @@ pub fn render_message(message: &String, frame: &mut Frame) {
     let area = Rect {
         x: frame.size().width / 2 - half - 1,
         y: frame.size().height / 2 - 2,
-        width: std::cmp::max(message.len() as u16 + 2, 13),
+        width: std::cmp::max(message.len() as u16 + 2, 15),
         height: 4,
     };
     let paragraph = Paragraph::new(message.clone());

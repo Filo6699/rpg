@@ -4,7 +4,7 @@ impl Game {
     pub fn get_screen_name(&mut self) -> String {
         match self.screen {
             Screen::Battle(_) => "[Battle]".into(),
-            Screen::Menu => "[Main menu]".into(),
+            Screen::Stats => "[Main menu]".into(),
         }
     }
 
@@ -23,7 +23,8 @@ impl Game {
 
                 data
             }
-            Screen::Menu => format!("{}\nHP: {}\nDamage: {}\nLevel {}: {}/{}\n\nPress q to exit",
+            Screen::Stats => format!(
+                "{}\nHP: {}\nDamage: {}\nLevel {}: {}/{}\n\nPress q to exit",
                 self.player.get_name(),
                 self.player.get_health(),
                 self.player.get_damage(),
