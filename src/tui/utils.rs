@@ -37,7 +37,7 @@ pub fn render_border_type(paragraph: &Paragraph, title: &str, frame: &mut Frame,
     let block = Block::new()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .title(title.clone());
+        .title(Title::from(title.clone()).alignment(Alignment::Center));
     frame.render_widget(paragraph.clone().block(block), area);
 }
 
@@ -53,9 +53,9 @@ pub fn render_message(message: &String, frame: &mut Frame) {
     let block = Block::new()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .title(String::from("Message"))
+        .title(Title::from("[Message]").alignment(Alignment::Center))
         .title(
-            Title::from("Press Enter")
+            Title::from("[Press Enter]")
                 .position(Position::Bottom)
                 .alignment(Alignment::Center),
         );

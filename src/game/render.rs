@@ -3,8 +3,8 @@ use super::game_class::{Game, Screen};
 impl Game {
     pub fn get_screen_name(&mut self) -> String {
         match self.screen {
-            Screen::Battle(_) => "Battle".into(),
-            Screen::Menu => "Main menu".into(),
+            Screen::Battle(_) => "[Battle]".into(),
+            Screen::Menu => "[Main menu]".into(),
         }
     }
 
