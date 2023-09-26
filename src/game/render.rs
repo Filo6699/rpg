@@ -1,4 +1,4 @@
-use super::game_class::{Game, Screen};
+use super::game_struct::{Game, Screen};
 
 impl Game {
     pub fn get_screen_name(&mut self) -> String {

@@ -5,7 +5,7 @@ use ratatui::{
 };
 use std::{error::Error, io::Stdout, ops::ControlFlow, time::Duration};
 
-use super::super::game::game_class::Game;
+use super::super::game::game_struct::Game;
 use super::utils::{render_border_type, render_message};
 
 type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stdout>>;
