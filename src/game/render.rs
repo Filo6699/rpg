@@ -1,37 +1,78 @@
+use std::vec;
+
+use ratatui::{
+    style::{Color, Style, Stylize},
+    text::{Line, Span},
+    widgets::Paragraph,
+};
+
 use super::game_struct::{Game, Screen};
+use super::utils::calculate_xp_filled;
 
 impl Game {
-    pub fn get_screen_name(&mut self) -> String {
+    pub fn get_screen_name(&self) -> String {
         match self.screen {
             Screen::Battle(_) => "[Battle]".into(),
             Screen::Stats => "[Main menu]".into(),
         }
     }
 
-    pub fn render(&mut self) -> String {
-        match &mut self.screen {
+    pub fn render(&mut self) -> Paragraph {
+        match &self.screen {
             Screen::Battle(battle) => {
                 let plr = &battle.player;
                 let enemy = &battle.enemy;
                 let mut data = format!("{} is fighting {}", plr.name, enemy.name);
-
-                // Player's health
                 data.push_str(&format!("\n{} hp: {}", plr.name, plr.health));
-
-                // Enemy's health
                 data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
 
-                data
+                Paragraph::new(data)
             }
-            Screen::Stats => format!(
-                "{}\nHP: {}\nDamage: {}\nLevel {}: {}/{}\n\nPress q to exit",
-                self.player.get_name(),
-                self.player.get_health(),
-                self.player.get_damage(),
-                self.player.get_level(),
-                self.player.get_xp(),
-                self.player.get_nxp(),
-            ),
+            Screen::Stats => {
+                let empty = Line::from("");
+                let playername = Line::from(self.player.get_name());
+                let health = Line::from(vec![
+                    Span::raw("Health | "),
+                    Span::styled(
+                        self.player.get_health().to_string(),
+                        Style::default().bold().fg(Color::Green),
+                    ),
+                ]);
+                let damage = Line::from(vec![
+                    Span::raw("Damage | "),
+                    Span::styled(
+                        self.player.get_damage().to_string(),
+                        Style::default().bold().fg(Color::LightRed),
+                    ),
+                ]);
+                let level = Line::from(vec![
+                    Span::raw("Level  | "),
+                    Span::styled(
+                        self.player.get_level().to_string(),
+                        Style::default().bold().fg(Color::Yellow),
+                    ),
+                ]);
+                let (filled, missing) =
+                    calculate_xp_filled(self.player.get_xp(), self.player.get_nxp());
+                let xpbar = Line::from(vec![
+                    Span::raw("       | ["),
+                    Span::styled(filled, Style::default().bold().fg(Color::LightGreen)),
+                    Span::styled(missing, Style::default().bold().fg(Color::LightRed)),
+                    Span::raw("]  "),
+                    Span::raw(self.player.get_xp().to_string()),
+                    Span::styled("/", Style::default().fg(Color::DarkGray)),
+                    Span::raw(self.player.get_nxp().to_string()),
+                    Span::styled(" XP", Style::default().fg(Color::DarkGray)),
+                ]);
+                Paragraph::new(vec![
+                    playername,
+                    empty.clone(),
+                    health,
+                    damage,
+                    level,
+                    xpbar,
+                ])
+            }
         }
     }
 }

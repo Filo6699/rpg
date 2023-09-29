@@ -47,7 +47,7 @@ impl Player {
     }
 
     fn calculate_needed_xp(level: u32) -> u64 {
-        (level.pow(2) * 100).into()
+        (level.pow(2) * 40 + 60).into()
     }
 
     fn stats_from_level(level: u32) -> (u32, u32) {
@@ -59,6 +59,7 @@ impl Player {
         let prev_level = self.level;
         while self.xp >= self.needed_xp {
             self.level += 1;
+            self.xp -= self.needed_xp;
             (self.base_health, self.base_damage) = Player::stats_from_level(self.level);
             self.needed_xp = Player::calculate_needed_xp(self.level);
         }

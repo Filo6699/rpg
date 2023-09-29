@@ -1,8 +1,5 @@
 use crossterm::event::{self, Event, KeyCode};
-use ratatui::{
-    prelude::{CrosstermBackend, Rect},
-    widgets::Paragraph,
-};
+use ratatui::prelude::{CrosstermBackend, Rect};
 use std::{error::Error, io::Stdout, ops::ControlFlow, time::Duration};
 
 use super::super::game::game_struct::Game;
@@ -30,10 +27,8 @@ fn ui(frame: &mut Frame, game: &mut Game) {
         width: frame.size().width,
         height: frame.size().height,
     };
-    let tick_text = game.render();
-
     let title = game.get_screen_name();
-    let paragraph = Paragraph::new(tick_text);
+    let paragraph = game.render();
     render_border_type(&paragraph, &title, frame, area);
 
     if let Some(message) = game.get_message() {
