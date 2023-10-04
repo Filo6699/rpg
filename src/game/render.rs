@@ -54,11 +54,11 @@ impl Game {
                     ),
                 ]);
                 let (filled, missing) =
-                    calculate_xp_filled(self.player.get_xp(), self.player.get_nxp());
+                    calculate_xp_filled(self.player.get_xp(), self.player.get_nxp(), 10);
                 let xpbar = Line::from(vec![
                     Span::raw("       | ["),
-                    Span::styled(filled, Style::default().bold().fg(Color::LightGreen)),
-                    Span::styled(missing, Style::default().bold().fg(Color::LightRed)),
+                    Span::styled(filled, Style::default().bold().fg(Color::Gray)),
+                    Span::styled(missing, Style::default().bold().fg(Color::DarkGray)),
                     Span::raw("]  "),
                     Span::raw(self.player.get_xp().to_string()),
                     Span::styled("/", Style::default().fg(Color::DarkGray)),
