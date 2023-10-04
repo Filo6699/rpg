@@ -1,4 +1,5 @@
 pub mod battle;
 pub mod game_struct;
+mod player;
 pub mod render;
-pub mod utils;
+mod utils;

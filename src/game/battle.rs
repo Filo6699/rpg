@@ -1,10 +1,6 @@
-use std::sync::{Arc, Mutex};
-
 use crossterm::event::KeyCode;
 
-use super::game_struct::Player;
-
-type MessageQueue = Arc<Mutex<Vec<String>>>;
+use super::{player::Player, utils::MessageQueue};
 
 #[derive(Clone)]
 pub struct Entity {

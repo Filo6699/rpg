@@ -1,3 +1,7 @@
+use std::sync::{Arc, Mutex};
+
+pub type MessageQueue = Arc<Mutex<Vec<String>>>;
+
 pub fn calculate_xp_filled(xp: u64, needed_xp: u64, precision: u32) -> (String, String) {
     let percentage: u64 = xp * <u32 as Into<u64>>::into(precision) / needed_xp;
     let mut filled = String::from("");
