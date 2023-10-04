@@ -21,9 +21,9 @@ impl Entity {
     #[allow(dead_code)]
     pub fn default() -> Entity {
         Entity {
-            health: 3,
+            health: 100,
             damage: 10,
-            name: "Entity".into(),
+            name: "Dummy".into(),
         }
     }
 }
@@ -34,7 +34,7 @@ pub enum BattleWinner {
     Enemy,
 }
 
-pub struct Battle {
+pub struct BattleScreen {
     pub player: Entity,
     pub enemy: Entity,
     player_turn: bool,
@@ -43,9 +43,9 @@ pub struct Battle {
     msg_queue: Option<MessageQueue>,
 }
 
-impl Battle {
-    pub fn new(player: &Player, enemy: &Entity) -> Battle {
-        Battle {
+impl BattleScreen {
+    pub fn new(player: &Player, enemy: &Entity) -> BattleScreen {
+        BattleScreen {
             player: player.to_entity(),
             enemy: enemy.clone(),
             player_turn: true,
@@ -96,14 +96,14 @@ impl Battle {
     pub fn handle_key(&mut self, _: KeyCode) {}
 }
 
-pub struct Gains {
+pub struct GainsScreen {
     xp_gain: u64,
     coins_gain: u64,
 }
 
-impl Gains {
-    pub fn new(xp: u64, coins: u64) -> Gains {
-        Gains {
+impl GainsScreen {
+    pub fn new(xp: u64, coins: u64) -> GainsScreen {
+        GainsScreen {
             xp_gain: xp,
             coins_gain: coins,
         }

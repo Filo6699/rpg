@@ -2,15 +2,15 @@ use crossterm::event::{KeyCode, KeyEvent};
 use std::sync::{Arc, Mutex};
 
 use super::{
-    battle::{Battle, BattleWinner, Entity, Gains},
+    battle::{BattleScreen, BattleWinner, Entity, GainsScreen},
     player::Player,
     utils::MessageQueue,
 };
 
 pub enum Screen {
     Stats,
-    Battle(Battle),
-    Gains(Gains),
+    Battle(BattleScreen),
+    Gains(GainsScreen),
 }
 
 pub struct Game {
@@ -68,13 +68,13 @@ impl Game {
                 }
                 self.player.add_coins(coins_gain);
                 self.player.add_xp(xp_gain);
-                self.screen = Screen::Gains(Gains::new(xp_gain, coins_gain));
+                self.screen = Screen::Gains(GainsScreen::new(xp_gain, coins_gain));
             }
             Screen::Stats => {
                 if KeyCode::Char('t') == event.code {
                     let enemy_name = String::from("Bebra");
                     let enemy = Entity::new(100, 30, &enemy_name);
-                    let mut battle = Battle::new(&self.player, &enemy);
+                    let mut battle = BattleScreen::new(&self.player, &enemy);
                     battle.set_message_queue(self.create_msgq_reference());
                     self.screen = Screen::Battle(battle);
                 }
