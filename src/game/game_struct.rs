@@ -1,13 +1,14 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use std::sync::{Arc, Mutex};
 
-use super::battle::{Battle, BattleWinner, Entity};
+use super::battle::{Battle, BattleWinner, Entity, Gains};
 
 type MessageQueue = Arc<Mutex<Vec<String>>>;
 
 pub enum Screen {
-    Battle(Battle),
     Stats,
+    Battle(Battle),
+    Gains(Gains),
 }
 
 pub struct Player {
@@ -16,6 +17,7 @@ pub struct Player {
     base_damage: u32,
     xp: u64,
     needed_xp: u64,
+    coins: u64,
     name: String,
 
     msg_queue: Option<MessageQueue>,
@@ -28,6 +30,10 @@ impl Player {
 
     pub fn get_name(&self) -> &str {
         self.name.as_str()
+    }
+
+    pub fn get_coins(&self) -> u64 {
+        self.coins
     }
 
     pub fn get_health(&self) -> u32 {
@@ -52,6 +58,10 @@ impl Player {
 
     fn stats_from_level(level: u32) -> (u32, u32) {
         (level * 30 + 100, level * 2 + 10)
+    }
+
+    pub fn add_coins(&mut self, coins: u64) {
+        self.coins += coins;
     }
 
     pub fn add_xp(&mut self, xp: u64) {
@@ -79,6 +89,7 @@ impl Player {
             base_damage: damage,
             name: "Player".into(),
             xp: 0,
+            coins: 0,
             needed_xp: Player::calculate_needed_xp(1),
 
             msg_queue: None,
@@ -115,12 +126,6 @@ impl Game {
         Arc::clone(&self.message_queue)
     }
 
-    // pub fn add_message(&mut self, msg: String) {
-    //     let re = Arc::clone(&self.message_queue);
-    //     let mut queue = re.lock().unwrap();
-    //     queue.push(msg);
-    // }
-
     pub fn get_message(&mut self) -> Option<String> {
         let queue = self.message_queue.lock().unwrap();
         queue.get(0).cloned()
@@ -149,8 +154,13 @@ impl Game {
                     BattleWinner::Player => 120,
                     BattleWinner::Enemy => 50,
                 };
+                let mut coins_gain: u64 = 0;
+                if let BattleWinner::Player = battle.get_winner().unwrap() {
+                    coins_gain = 15;
+                }
+                self.player.add_coins(coins_gain);
                 self.player.add_xp(xp_gain);
-                self.screen = Screen::Stats;
+                self.screen = Screen::Gains(Gains::new(xp_gain, coins_gain));
             }
             Screen::Stats => {
                 if KeyCode::Char('t') == event.code {
@@ -159,6 +169,11 @@ impl Game {
                     let mut battle = Battle::new(&self.player, &enemy);
                     battle.set_message_queue(self.create_msgq_reference());
                     self.screen = Screen::Battle(battle);
+                }
+            }
+            Screen::Gains(_) => {
+                if KeyCode::Enter == event.code {
+                    self.screen = Screen::Stats;
                 }
             }
         }

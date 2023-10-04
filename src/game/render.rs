@@ -14,6 +14,7 @@ impl Game {
         match self.screen {
             Screen::Battle(_) => "[Battle]".into(),
             Screen::Stats => "[Main menu]".into(),
+            Screen::Gains(_) => "[Battle Gains]".into(),
         }
     }
 
@@ -64,6 +65,14 @@ impl Game {
                     Span::raw(self.player.get_nxp().to_string()),
                     Span::styled(" XP", Style::default().fg(Color::DarkGray)),
                 ]);
+                let coins = Line::from(vec![
+                    Span::raw("Coins  | "),
+                    Span::styled(
+                        self.player.get_coins().to_string(),
+                        Style::default().bold().fg(Color::LightYellow),
+                    ),
+                ]);
+                let info = Line::from("Press T to enter a battle");
                 Paragraph::new(vec![
                     playername,
                     empty.clone(),
@@ -71,7 +80,37 @@ impl Game {
                     damage,
                     level,
                     xpbar,
+                    coins,
+                    empty.clone(),
+                    info,
                 ])
+            }
+            Screen::Gains(gains) => {
+                let mut lines: Vec<Line<'_>> = vec![];
+
+                lines.push(Line::from(vec![Span::raw("Battle gains").bold()]));
+                lines.push(Line::from(""));
+                if gains.get_coins() > 0 {
+                    lines.push(Line::from(vec![
+                        Span::styled(
+                            format!("+{}", gains.get_coins()),
+                            Style::default().bold().light_green(),
+                        ),
+                        Span::styled(" coins", Style::default().bold().light_yellow()),
+                    ]));
+                }
+                if gains.get_xp() > 0 {
+                    lines.push(Line::from(vec![
+                        Span::styled(
+                            format!("+{}", gains.get_xp()),
+                            Style::default().bold().light_green(),
+                        ),
+                        Span::styled(" xp", Style::default().bold().light_blue()),
+                    ]));
+                }
+                lines.push(Line::from(""));
+                lines.push(Line::from("Press Enter to continue..."));
+                Paragraph::new(lines)
             }
         }
     }

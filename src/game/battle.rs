@@ -99,3 +99,25 @@ impl Battle {
 
     pub fn handle_key(&mut self, _: KeyCode) {}
 }
+
+pub struct Gains {
+    xp_gain: u64,
+    coins_gain: u64,
+}
+
+impl Gains {
+    pub fn new(xp: u64, coins: u64) -> Gains {
+        Gains {
+            xp_gain: xp,
+            coins_gain: coins,
+        }
+    }
+
+    pub fn get_xp(&self) -> u64 {
+        self.xp_gain
+    }
+
+    pub fn get_coins(&self) -> u64 {
+        self.coins_gain
+    }
+}
