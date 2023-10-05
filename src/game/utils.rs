@@ -8,9 +8,9 @@ pub fn calculate_xp_filled(xp: u64, needed_xp: u64, precision: u32) -> (String, 
     let mut empty = String::from("");
     for i in 0..precision {
         if percentage > i.into() {
-            filled.push('_');
+            filled.push('■');
         } else {
-            empty.push('_');
+            empty.push('■');
         }
     }
     (filled, empty)
