@@ -7,7 +7,7 @@ use ratatui::{
 };
 
 use super::game_struct::{Game, Screen};
-use super::utils::calculate_xp_filled;
+use super::utils::calculate_bar;
 
 impl Game {
     pub fn get_screen_name(&self) -> String {
@@ -54,7 +54,7 @@ impl Game {
                     ),
                 ]);
                 let (filled, missing) =
-                    calculate_xp_filled(self.player.get_xp(), self.player.get_nxp(), 10);
+                    calculate_bar(self.player.get_xp(), self.player.get_nxp(), 10);
                 let xpbar = Line::from(vec![
                     Span::raw("       | ["),
                     Span::styled(filled, Style::default().bold().fg(Color::Gray)),
@@ -88,7 +88,34 @@ impl Game {
             Screen::Gains(gains) => {
                 let mut lines: Vec<Line<'_>> = vec![];
 
-                lines.push(Line::from(vec![Span::raw("Battle gains").bold()]));
+                lines.push(Line::from("Battle gains".bold()));
+                if gains.player_won() {
+                    lines.push(Line::from(vec![
+                        Span::raw("You won a battle against "),
+                        Span::styled(gains.get_enemy_name(), Style::default().bold()),
+                    ]));
+                    lines.push(Line::from(vec![
+                        Span::raw("You had "),
+                        Span::styled(
+                            gains.get_left_hp().to_string(),
+                            Style::default().bold().light_red(),
+                        ),
+                        Span::raw(" hp left."),
+                    ]));
+                } else {
+                    lines.push(Line::from(vec![
+                        Span::raw("You lost a battle against "),
+                        Span::styled(gains.get_enemy_name(), Style::default().bold()),
+                    ]));
+                    lines.push(Line::from(vec![
+                        Span::raw("Enemy had "),
+                        Span::styled(
+                            gains.get_left_hp().to_string(),
+                            Style::default().bold().light_red(),
+                        ),
+                        Span::raw(" hp left."),
+                    ]));
+                }
                 lines.push(Line::from(""));
                 if gains.get_coins() > 0 {
                     lines.push(Line::from(vec![

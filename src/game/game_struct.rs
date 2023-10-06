@@ -58,17 +58,35 @@ impl Game {
                 if battle.get_winner().is_none() {
                     return;
                 }
-                let xp_gain = match battle.get_winner().unwrap() {
-                    BattleWinner::Player => 120,
-                    BattleWinner::Enemy => 50,
+                let xp_gain: u64;
+                let hp_left: u32;
+                let player_won: bool;
+                match battle.get_winner().unwrap() {
+                    BattleWinner::Player(bhp_left) => {
+                        xp_gain = 120;
+                        hp_left = bhp_left;
+                        player_won = true;
+                    }
+                    BattleWinner::Enemy(bhp_left) => {
+                        xp_gain = 50;
+                        hp_left = bhp_left;
+                        player_won = false;
+                    }
                 };
                 let mut coins_gain: u64 = 0;
-                if let BattleWinner::Player = battle.get_winner().unwrap() {
+                if let BattleWinner::Player(_) = battle.get_winner().unwrap() {
                     coins_gain = 15;
                 }
                 self.player.add_coins(coins_gain);
                 self.player.add_xp(xp_gain);
-                self.screen = Screen::Gains(GainsScreen::new(xp_gain, coins_gain));
+
+                self.screen = Screen::Gains(GainsScreen::new(
+                    xp_gain,
+                    coins_gain,
+                    hp_left,
+                    battle.enemy.name.clone(),
+                    player_won,
+                ));
             }
             Screen::Stats => {
                 if KeyCode::Char('t') == event.code {
