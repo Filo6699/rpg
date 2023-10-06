@@ -49,7 +49,7 @@ impl Game {
                 Paragraph::new(lines)
             }
             Screen::Stats => {
-                let playername = Line::from(self.player.get_name());
+                let playername = Line::from(format!("Name   | {}", self.player.get_name()));
                 let health = Line::from(vec![
                     Span::raw("Health | "),
                     Span::styled(
@@ -96,9 +96,9 @@ impl Game {
                     empty.clone(),
                     health,
                     damage,
+                    coins,
                     level,
                     xpbar,
-                    coins,
                     empty.clone(),
                     info,
                 ])
