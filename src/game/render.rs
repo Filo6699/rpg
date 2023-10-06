@@ -19,6 +19,7 @@ impl Game {
     }
 
     pub fn render(&mut self) -> Paragraph {
+        let empty = Line::from("");
         match &self.screen {
             Screen::Battle(battle) => {
                 let plr = &battle.player;
@@ -30,7 +31,6 @@ impl Game {
                 Paragraph::new(data)
             }
             Screen::Stats => {
-                let empty = Line::from("");
                 let playername = Line::from(self.player.get_name());
                 let health = Line::from(vec![
                     Span::raw("Health | "),
@@ -116,7 +116,7 @@ impl Game {
                         Span::raw(" hp left."),
                     ]));
                 }
-                lines.push(Line::from(""));
+                lines.push(empty.clone());
                 if gains.get_coins() > 0 {
                     lines.push(Line::from(vec![
                         Span::styled(
@@ -135,7 +135,7 @@ impl Game {
                         Span::styled(" xp", Style::default().bold().light_blue()),
                     ]));
                 }
-                lines.push(Line::from(""));
+                lines.push(empty.clone());
                 lines.push(Line::from("Press Enter to continue..."));
                 Paragraph::new(lines)
             }
