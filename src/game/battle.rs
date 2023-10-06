@@ -4,13 +4,13 @@ use super::{player::Player, utils::MessageQueue};
 
 #[derive(Clone)]
 pub struct Entity {
-    pub health: u32,
-    damage: u32,
+    pub health: u128,
+    damage: u128,
     pub name: String,
 }
 
 impl Entity {
-    pub fn new(hp: u32, dmg: u32, name: &str) -> Entity {
+    pub fn new(hp: u128, dmg: u128, name: &str) -> Entity {
         Entity {
             health: hp,
             damage: dmg,
@@ -32,7 +32,7 @@ impl Entity {
     }
 }
 
-type LeftHp = u32;
+type LeftHp = u128;
 
 #[derive(Copy, Clone)]
 pub enum BattleWinner {
@@ -111,15 +111,15 @@ impl BattleScreen {
 }
 
 pub struct GainsScreen {
-    xp_gain: u64,
-    coins_gain: u64,
-    left_hp: u32,
+    xp_gain: u128,
+    coins_gain: u128,
+    left_hp: u128,
     en_name: String,
     player_won: bool,
 }
 
 impl GainsScreen {
-    pub fn new(xp: u64, coins: u64, hp: u32, enemy_name: String, pl_won: bool) -> GainsScreen {
+    pub fn new(xp: u128, coins: u128, hp: u128, enemy_name: String, pl_won: bool) -> GainsScreen {
         GainsScreen {
             xp_gain: xp,
             coins_gain: coins,
@@ -137,15 +137,15 @@ impl GainsScreen {
         &self.en_name
     }
 
-    pub fn get_xp(&self) -> u64 {
+    pub fn get_xp(&self) -> u128 {
         self.xp_gain
     }
 
-    pub fn get_coins(&self) -> u64 {
+    pub fn get_coins(&self) -> u128 {
         self.coins_gain
     }
 
-    pub fn get_left_hp(&self) -> u32 {
+    pub fn get_left_hp(&self) -> u128 {
         self.left_hp
     }
 }

@@ -58,22 +58,22 @@ impl Game {
                 if battle.get_winner().is_none() {
                     return;
                 }
-                let xp_gain: u64;
-                let hp_left: u32;
+                let xp_gain: u128;
+                let hp_left: u128;
                 let player_won: bool;
                 match battle.get_winner().unwrap() {
                     BattleWinner::Player(bhp_left) => {
-                        xp_gain = 120;
+                        xp_gain = 340;
                         hp_left = bhp_left;
                         player_won = true;
                     }
                     BattleWinner::Enemy(bhp_left) => {
-                        xp_gain = 50;
+                        xp_gain = 120;
                         hp_left = bhp_left;
                         player_won = false;
                     }
                 };
-                let mut coins_gain: u64 = 0;
+                let mut coins_gain: u128 = 0;
                 if let BattleWinner::Player(_) = battle.get_winner().unwrap() {
                     coins_gain = 15;
                 }

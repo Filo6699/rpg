@@ -1,19 +1,19 @@
 use super::{battle::Entity, utils::MessageQueue};
 
 pub struct Player {
-    level: u32,
-    base_health: u32,
-    base_damage: u32,
-    xp: u64,
-    needed_xp: u64,
-    coins: u64,
+    level: u128,
+    base_health: u128,
+    base_damage: u128,
+    xp: u128,
+    needed_xp: u128,
+    coins: u128,
     name: String,
 
     msg_queue: Option<MessageQueue>,
 }
 
 impl Player {
-    pub fn get_level(&self) -> u32 {
+    pub fn get_level(&self) -> u128 {
         self.level
     }
 
@@ -21,39 +21,39 @@ impl Player {
         self.name.as_str()
     }
 
-    pub fn get_coins(&self) -> u64 {
+    pub fn get_coins(&self) -> u128 {
         self.coins
     }
 
-    pub fn get_health(&self) -> u32 {
+    pub fn get_health(&self) -> u128 {
         self.base_health
     }
 
-    pub fn get_damage(&self) -> u32 {
+    pub fn get_damage(&self) -> u128 {
         self.base_damage
     }
 
-    pub fn get_xp(&self) -> u64 {
+    pub fn get_xp(&self) -> u128 {
         self.xp
     }
 
-    pub fn get_nxp(&self) -> u64 {
+    pub fn get_nxp(&self) -> u128 {
         self.needed_xp
     }
 
-    fn calculate_needed_xp(level: u32) -> u64 {
-        (level.pow(2) * 40 + 60).into()
+    fn calculate_needed_xp(level: u128) -> u128 {
+        level.pow(2) * 40 + 60
     }
 
-    fn stats_from_level(level: u32) -> (u32, u32) {
+    fn stats_from_level(level: u128) -> (u128, u128) {
         (level * 30 + 100, level * 2 + 10)
     }
 
-    pub fn add_coins(&mut self, coins: u64) {
+    pub fn add_coins(&mut self, coins: u128) {
         self.coins += coins;
     }
 
-    pub fn add_xp(&mut self, xp: u64) {
+    pub fn add_xp(&mut self, xp: u128) {
         self.xp += xp;
         let prev_level = self.level;
         while self.xp >= self.needed_xp {
