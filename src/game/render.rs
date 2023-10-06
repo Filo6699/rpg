@@ -22,13 +22,31 @@ impl Game {
         let empty = Line::from("");
         match &self.screen {
             Screen::Battle(battle) => {
-                let plr = &battle.player;
-                let enemy = &battle.enemy;
-                let mut data = format!("{} is fighting {}", plr.name, enemy.name);
-                data.push_str(&format!("\n{} hp: {}", plr.name, plr.health));
-                data.push_str(&format!("\n{} hp: {}", enemy.name, enemy.health));
+                let mut lines: Vec<Line<'_>> = vec![];
 
-                Paragraph::new(data)
+                let player = &battle.player;
+                let enemy = &battle.enemy;
+                lines.push(Line::from(vec![
+                    player.get_name().bold(),
+                    Span::raw(if battle.is_players_turn() { " <" } else { "" }),
+                ]));
+                lines.push(Line::from(vec![
+                    Span::raw(player.health.to_string()),
+                    Span::styled(" HP", Style::default().light_red().bold()),
+                ]));
+
+                lines.push(empty.clone());
+
+                lines.push(Line::from(vec![
+                    enemy.get_name().bold(),
+                    Span::raw(if !battle.is_players_turn() { " <" } else { "" }),
+                ]));
+                lines.push(Line::from(vec![
+                    Span::raw(enemy.health.to_string()),
+                    Span::styled(" HP", Style::default().light_red().bold()),
+                ]));
+
+                Paragraph::new(lines)
             }
             Screen::Stats => {
                 let playername = Line::from(self.player.get_name());
@@ -36,7 +54,7 @@ impl Game {
                     Span::raw("Health | "),
                     Span::styled(
                         self.player.get_health().to_string(),
-                        Style::default().bold().fg(Color::Green),
+                        Style::default().bold().green(),
                     ),
                 ]);
                 let damage = Line::from(vec![

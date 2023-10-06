@@ -26,6 +26,10 @@ impl Entity {
             name: "Dummy".into(),
         }
     }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
 }
 
 type LeftHp = u32;
@@ -55,6 +59,10 @@ impl BattleScreen {
 
             msg_queue: None,
         }
+    }
+
+    pub fn is_players_turn(&self) -> bool {
+        self.player_turn
     }
 
     pub fn get_winner(&mut self) -> Option<BattleWinner> {
