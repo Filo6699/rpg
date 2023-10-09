@@ -42,14 +42,3 @@ fn main() -> Result<()> {
     }
     Ok(())
 }
-
-// fn main() -> Result<()> {
-//     let mut terminal = setup_terminal()?;
-//     let result = run(&mut terminal);
-//     restore_terminal(terminal)?;
-
-//     if let Err(err) = result {
-//         eprintln!("{err:?}");
-//     }
-//     Ok(())
-// }

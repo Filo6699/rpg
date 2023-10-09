@@ -6,29 +6,26 @@ use ratatui::{
     widgets::Paragraph,
 };
 
-use crate::Frame;
+use crate::{
+    game::utils::{load_save, write_save},
+    Frame,
+};
 
 use super::{Scene, SharedData};
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
-    texts: [&'static str; 3],
+    texts: [&'static str; 4],
+    temp: Option<String>,
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
-            texts: ["Change nickname", "Do nothing", "Exit"],
+            texts: ["Change nickname", "Save", "Load", "Exit"],
+            temp: None,
         }
     }
-
-    // fn choosen_text(&self) -> &&str {
-    //     let result = self.texts.get(self.choosen_text_id as usize);
-    //     match result {
-    //         Some(value) => value,
-    //         None => &"None",
-    //     }
-    // }
 }
 
 impl Scene for StatisticsScene {
@@ -47,7 +44,7 @@ impl Scene for StatisticsScene {
         let paragraph = Paragraph::new(message.clone());
         frame.render_widget(paragraph, area);
 
-        for text_id in 0..3 {
+        for text_id in 0..self.texts.len() {
             let mut text = Span::raw(self.texts[text_id]);
             let area = Rect {
                 x: 0,
@@ -61,6 +58,19 @@ impl Scene for StatisticsScene {
             let paragraph = Paragraph::new(Line::from(text));
             frame.render_widget(paragraph, area)
         }
+
+        if self.temp.is_none() {
+            return;
+        }
+        // let save = load_save(&self.temp.clone().unwrap());
+        let paragraph = Paragraph::new(self.temp.clone().unwrap());
+        let area = Rect {
+            x: 0,
+            y: 0,
+            width: frame.size().width - 1,
+            height: frame.size().height - 1,
+        };
+        frame.render_widget(paragraph, area)
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
@@ -75,14 +85,17 @@ impl Scene for StatisticsScene {
                     self.choosen_text_id -= 1;
                 }
             }
-            KeyCode::Enter => {
-                if self.choosen_text_id == 0 {
-                    data.current_scene = 0
+            KeyCode::Enter => match self.choosen_text_id {
+                0 => data.current_scene = 0,
+                1 => write_save(&data.player_data),
+                2 => {
+                    if let Some(saved_data) = load_save() {
+                        data.player_data = saved_data
+                    }
                 }
-                if self.choosen_text_id == 2 {
-                    data.terminate = true;
-                }
-            }
+                3 => data.terminate = true,
+                _ => (),
+            },
             _ => (),
         }
     }

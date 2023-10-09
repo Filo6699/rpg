@@ -1,5 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use super::{battle::Entity, utils::MessageQueue};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Player {
     level: u128,
     base_health: u128,
@@ -9,6 +12,7 @@ pub struct Player {
     coins: u128,
     name: String,
 
+    #[serde(skip_serializing, skip_deserializing)]
     msg_queue: Option<MessageQueue>,
 }
 
