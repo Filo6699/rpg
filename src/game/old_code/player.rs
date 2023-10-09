@@ -12,7 +12,6 @@ pub struct Player {
     msg_queue: Option<MessageQueue>,
 }
 
-#[allow(unused)]
 impl Player {
     pub fn get_level(&self) -> u128 {
         self.level
@@ -88,10 +87,6 @@ impl Player {
 
     pub fn set_message_queue(&mut self, msg_queue: MessageQueue) {
         self.msg_queue = Some(msg_queue);
-    }
-
-    pub fn set_name(&mut self, new_name: String) {
-        self.name = new_name;
     }
 
     pub fn to_entity(&self) -> Entity {

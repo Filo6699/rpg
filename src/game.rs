@@ -1,5 +1,5 @@
-pub mod battle;
-pub mod game_struct;
-mod player;
-pub mod render;
+mod battle;
+pub mod player;
+pub mod scenes;
+pub mod ui;
 mod utils;
