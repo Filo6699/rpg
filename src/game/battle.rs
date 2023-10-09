@@ -1,9 +1,9 @@
 #[allow(unused)]
 #[derive(Clone)]
 pub struct Entity {
-    pub health: u128,
+    health: u128,
     damage: u128,
-    pub name: String,
+    name: String,
 }
 
 #[allow(unused)]
