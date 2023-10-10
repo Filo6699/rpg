@@ -1,13 +1,13 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     prelude::Rect,
-    style::{Color, Stylize},
+    style::{Color, Style, Stylize},
     text::{Line, Span},
     widgets::Paragraph,
 };
 
 use crate::{
-    game::utils::{load_save, write_save},
+    game::utils::{calculate_bar, load_save, write_save},
     Frame,
 };
 
@@ -16,14 +16,12 @@ use super::{Scene, SharedData};
 pub struct StatisticsScene {
     choosen_text_id: i32,
     texts: [&'static str; 4],
-    temp: Option<String>,
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
             texts: ["Change nickname", "Save", "Load", "Exit"],
-            temp: None,
         }
     }
 }
@@ -34,36 +32,72 @@ impl Scene for StatisticsScene {
     }
 
     fn render(&self, frame: &mut Frame, data: &SharedData) {
-        let message = format!("Hello, {}!", data.player_data.get_name());
-        let area = Rect {
-            x: 0,
-            y: 0,
-            width: frame.size().width - 1,
-            height: 1,
-        };
-        let paragraph = Paragraph::new(message.clone());
-        frame.render_widget(paragraph, area);
-
+        let empty = Line::from("");
+        let playername = Line::from(format!("Name   | {}", data.player_data.get_name()));
+        let health = Line::from(vec![
+            Span::raw("Health | "),
+            Span::styled(
+                data.player_data.get_health().to_string(),
+                Style::default().bold().green(),
+            ),
+        ]);
+        let damage = Line::from(vec![
+            Span::raw("Damage | "),
+            Span::styled(
+                data.player_data.get_damage().to_string(),
+                Style::default().bold().fg(Color::LightRed),
+            ),
+        ]);
+        let level = Line::from(vec![
+            Span::raw("Level  | "),
+            Span::styled(
+                data.player_data.get_level().to_string(),
+                Style::default().bold().fg(Color::Yellow),
+            ),
+        ]);
+        let (filled, missing) =
+            calculate_bar(data.player_data.get_xp(), data.player_data.get_nxp(), 10);
+        let xpbar = Line::from(vec![
+            Span::raw("       | ["),
+            Span::styled(filled, Style::default().bold().fg(Color::Gray)),
+            Span::styled(missing, Style::default().bold().fg(Color::DarkGray)),
+            Span::raw("]  "),
+            Span::raw(data.player_data.get_xp().to_string()),
+            Span::styled("/", Style::default().fg(Color::DarkGray)),
+            Span::raw(data.player_data.get_nxp().to_string()),
+            Span::styled(" XP", Style::default().fg(Color::DarkGray)),
+        ]);
+        let coins = Line::from(vec![
+            Span::raw("Coins  | "),
+            Span::styled(
+                data.player_data.get_coins().to_string(),
+                Style::default().bold().fg(Color::LightYellow),
+            ),
+        ]);
+        let mut buttons_spans: Vec<Span<'_>> = vec![];
         for text_id in 0..self.texts.len() {
-            let mut text = Span::raw(self.texts[text_id]);
-            let area = Rect {
-                x: 0,
-                y: (text_id + 2) as u16,
-                width: frame.size().width - 1,
-                height: 1,
-            };
-            if text_id as i32 == self.choosen_text_id {
-                text = text.bg(Color::Cyan);
+            if text_id > 0 {
+                buttons_spans.push(Span::from("  "));
             }
-            let paragraph = Paragraph::new(Line::from(text));
-            frame.render_widget(paragraph, area)
+            let mut style = Style::default();
+            if text_id as i32 == self.choosen_text_id {
+                style = style.bg(Color::Cyan);
+            };
+            buttons_spans.push(Span::styled(self.texts[text_id].to_string(), style));
         }
 
-        if self.temp.is_none() {
-            return;
-        }
-        // let save = load_save(&self.temp.clone().unwrap());
-        let paragraph = Paragraph::new(self.temp.clone().unwrap());
+        let buttons = Line::from(buttons_spans);
+        let paragraph = Paragraph::new(vec![
+            playername,
+            empty.clone(),
+            health,
+            damage,
+            coins,
+            level,
+            xpbar,
+            empty.clone(),
+            buttons,
+        ]);
         let area = Rect {
             x: 0,
             y: 0,
@@ -75,12 +109,12 @@ impl Scene for StatisticsScene {
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
         match key.code {
-            KeyCode::Down => {
+            KeyCode::Right => {
                 if self.choosen_text_id + 1 < (self.texts.len() as i32) {
                     self.choosen_text_id += 1;
                 }
             }
-            KeyCode::Up => {
+            KeyCode::Left => {
                 if self.choosen_text_id > 0 {
                     self.choosen_text_id -= 1;
                 }
