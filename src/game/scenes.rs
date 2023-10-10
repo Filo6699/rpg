@@ -63,16 +63,21 @@ impl SceneManager {
 
         if self.current_scene.scene_id() != data.current_scene {
             match data.current_scene {
-                0 => self.current_scene = Box::new(UsernameScene::new()),
-                1 => self.current_scene = Box::new(StatisticsScene::new()),
-                2 => {
+                _id if _id == UsernameScene::scene_id() => {
+                    self.current_scene = Box::new(UsernameScene::new())
+                }
+                _id if _id == StatisticsScene::scene_id() => {
+                    self.current_scene = Box::new(StatisticsScene::new())
+                }
+                _id if _id == BattleScene::scene_id() => {
                     self.current_scene = {
                         if let Some(transfer) = &data.scene_data_transfer {
                             Box::new(BattleScene::new(transfer))
                         } else {
                             panic!("No data provided to create battle screen");
                         }
-                    }
+                    };
+                    data.scene_data_transfer = None;
                 }
                 _ => panic!("Not valid scene_id"),
             }

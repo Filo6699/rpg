@@ -14,7 +14,9 @@ use crate::{
     Frame,
 };
 
-use super::{Scene, SharedData};
+use super::{battle::BattleScene, Scene, SharedData};
+
+const SCENE_ID: i32 = 1;
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
@@ -27,11 +29,15 @@ impl StatisticsScene {
             texts: ["Battle", "Change nickname", "Save", "Load", "Exit"],
         }
     }
+
+    pub fn scene_id() -> i32 {
+        SCENE_ID
+    }
 }
 
 impl Scene for StatisticsScene {
     fn scene_id(&self) -> i32 {
-        1
+        SCENE_ID
     }
 
     fn render(&self, frame: &mut Frame, data: &SharedData) {
@@ -130,7 +136,7 @@ impl Scene for StatisticsScene {
                         Err(err) => panic!("Wasn't able to parse battle json: {}", err),
                     };
                     data.scene_data_transfer = Some(json_battle);
-                    data.current_scene = 2
+                    data.current_scene = BattleScene::scene_id()
                 }
                 "Change nickname" => data.current_scene = 0,
                 "Save" => write_save(&data.player_data),

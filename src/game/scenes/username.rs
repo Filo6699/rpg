@@ -1,7 +1,9 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{prelude::Rect, widgets::Paragraph};
 
-use super::{Scene, SharedData};
+use super::{stats::StatisticsScene, Scene, SharedData};
+
+const SCENE_ID: i32 = 0;
 
 pub struct UsernameScene {
     name: String,
@@ -10,11 +12,15 @@ impl UsernameScene {
     pub fn new() -> Self {
         UsernameScene { name: "".into() }
     }
+
+    pub fn scene_id() -> i32 {
+        SCENE_ID
+    }
 }
 
 impl Scene for UsernameScene {
     fn scene_id(&self) -> i32 {
-        0
+        SCENE_ID
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
@@ -26,7 +32,7 @@ impl Scene for UsernameScene {
         }
         if key.code == KeyCode::Enter {
             data.player_data.set_name(self.name.clone());
-            data.current_scene = 1;
+            data.current_scene = StatisticsScene::scene_id();
         }
     }
 

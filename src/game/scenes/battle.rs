@@ -8,7 +8,9 @@ use ratatui::{
 
 use crate::game::battle::{Battle, BattleWinner};
 
-use super::{Scene, SharedData};
+use super::{stats::StatisticsScene, Scene, SharedData};
+
+const SCENE_ID: i32 = 2;
 
 pub struct BattleScene {
     battle: Battle,
@@ -22,11 +24,15 @@ impl BattleScene {
             tick: 0,
         }
     }
+
+    pub fn scene_id() -> i32 {
+        SCENE_ID
+    }
 }
 
 impl Scene for BattleScene {
     fn scene_id(&self) -> i32 {
-        2
+        SCENE_ID
     }
 
     fn handle_input(&mut self, _: KeyEvent, data: &mut SharedData) {
@@ -50,7 +56,7 @@ impl Scene for BattleScene {
             data.player_data.add_xp(xp_gain);
             data.player_data.add_coins(coins_gain);
 
-            data.current_scene = 1;
+            data.current_scene = StatisticsScene::scene_id();
         }
     }
 
