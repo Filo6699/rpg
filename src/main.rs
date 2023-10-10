@@ -5,7 +5,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use crossterm::event::{self, Event};
-use game::scenes::{username::UsernameScene, SceneManager};
+use game::scenes::stats::StatisticsScene;
+use game::scenes::{Scene, SceneManager};
 use game::ui::{restore_terminal, setup_terminal};
 use game::{player::Player, scenes::SharedData};
 use ratatui::prelude::CrosstermBackend;
@@ -15,8 +16,12 @@ type Terminal = ratatui::Terminal<CrosstermBackend<Stdout>>;
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn run(terminal: &mut Terminal) -> Result<()> {
-    let shared_data = Arc::new(Mutex::new(SharedData::new(Player::default(), 0)));
-    let mut scene_manager = SceneManager::new(UsernameScene::new());
+    let starting_scene = StatisticsScene::new();
+    let shared_data = Arc::new(Mutex::new(SharedData::new(
+        Player::default(),
+        starting_scene.scene_id(),
+    )));
+    let mut scene_manager = SceneManager::new(starting_scene);
     loop {
         if event::poll(Duration::from_millis(1000 / 60))? {
             if let Event::Key(key) = event::read()? {
