@@ -14,15 +14,11 @@ const SCENE_ID: i32 = 2;
 
 pub struct BattleScene {
     battle: Battle,
-    tick: i32,
 }
 impl BattleScene {
     pub fn new(data: &str) -> Self {
         let bat: Battle = serde_json::from_str(data).unwrap();
-        BattleScene {
-            battle: bat,
-            tick: 0,
-        }
+        BattleScene { battle: bat }
     }
 
     pub fn scene_id() -> i32 {
@@ -36,7 +32,6 @@ impl Scene for BattleScene {
     }
 
     fn handle_input(&mut self, _: KeyEvent, data: &mut SharedData) {
-        self.tick += 1;
         self.battle.tick();
         if let Some(winner) = self.battle.get_winner() {
             let xp_gain: u128;
