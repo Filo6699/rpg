@@ -1,10 +1,11 @@
 use crossterm::event::KeyEvent;
 
-use self::{stats::StatisticsScene, username::UsernameScene};
+use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
 
 use super::player::Player;
 use crate::Frame;
 
+pub mod battle;
 pub mod stats;
 pub mod username;
 
@@ -12,6 +13,7 @@ pub struct SharedData {
     player_data: Player,
     tick: u32,
     current_scene: i32,
+    scene_data_transfer: Option<String>,
     terminate: bool,
 }
 
@@ -21,6 +23,7 @@ impl SharedData {
             player_data: player,
             tick: 0,
             current_scene: scene_id,
+            scene_data_transfer: None,
             terminate: false,
         }
     }
@@ -62,6 +65,15 @@ impl SceneManager {
             match data.current_scene {
                 0 => self.current_scene = Box::new(UsernameScene::new()),
                 1 => self.current_scene = Box::new(StatisticsScene::new()),
+                2 => {
+                    self.current_scene = {
+                        if let Some(transfer) = &data.scene_data_transfer {
+                            Box::new(BattleScene::new(transfer))
+                        } else {
+                            panic!("No data provided to create battle screen");
+                        }
+                    }
+                }
                 _ => panic!("Not valid scene_id"),
             }
         }

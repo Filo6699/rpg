@@ -7,7 +7,10 @@ use ratatui::{
 };
 
 use crate::{
-    game::utils::{calculate_bar, load_save, write_save},
+    game::{
+        battle::{Battle, Entity},
+        utils::{calculate_bar, load_save, write_save},
+    },
     Frame,
 };
 
@@ -15,13 +18,13 @@ use super::{Scene, SharedData};
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
-    texts: [&'static str; 4],
+    texts: [&'static str; 5],
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
-            texts: ["Change nickname", "Save", "Load", "Exit"],
+            texts: ["Battle", "Change nickname", "Save", "Load", "Exit"],
         }
     }
 }
@@ -119,15 +122,24 @@ impl Scene for StatisticsScene {
                     self.choosen_text_id -= 1;
                 }
             }
-            KeyCode::Enter => match self.choosen_text_id {
-                0 => data.current_scene = 0,
-                1 => write_save(&data.player_data),
-                2 => {
+            KeyCode::Enter => match self.texts[self.choosen_text_id as usize] {
+                "Battle" => {
+                    let bat: Battle = Battle::new(&data.player_data, &Entity::default());
+                    let json_battle = match serde_json::to_string(&bat) {
+                        Ok(json) => json,
+                        Err(err) => panic!("Wasn't able to parse battle json: {}", err),
+                    };
+                    data.scene_data_transfer = Some(json_battle);
+                    data.current_scene = 2
+                }
+                "Change nickname" => data.current_scene = 0,
+                "Save" => write_save(&data.player_data),
+                "Load" => {
                     if let Some(saved_data) = load_save() {
                         data.player_data = saved_data
                     }
                 }
-                3 => data.terminate = true,
+                "Exit" => data.terminate = true,
                 _ => (),
             },
             _ => (),

@@ -29,6 +29,7 @@ impl Scene for UsernameScene {
             data.current_scene = 1;
         }
     }
+
     fn render(&self, frame: &mut crate::Frame, _: &SharedData) {
         let p = Paragraph::new(format!("Enter your new nickname:\n{}", self.name));
         let area = Rect {
@@ -39,5 +40,6 @@ impl Scene for UsernameScene {
         };
         frame.render_widget(p, area)
     }
+
     fn update(&mut self, _: &mut SharedData) {}
 }
