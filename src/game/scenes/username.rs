@@ -1,16 +1,22 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{prelude::Rect, widgets::Paragraph};
 
+use crate::game::message_queue::MessageQueue;
+
 use super::{stats::StatisticsScene, Scene, SharedData};
 
 const SCENE_ID: i32 = 0;
 
 pub struct UsernameScene {
     name: String,
+    message_queue: MessageQueue,
 }
 impl UsernameScene {
     pub fn new() -> Self {
-        UsernameScene { name: "".into() }
+        UsernameScene {
+            name: "".into(),
+            message_queue: MessageQueue::default(),
+        }
     }
 
     pub fn scene_id() -> i32 {
@@ -21,6 +27,10 @@ impl UsernameScene {
 impl Scene for UsernameScene {
     fn scene_id(&self) -> i32 {
         SCENE_ID
+    }
+
+    fn set_message_queue(&mut self, queue: MessageQueue) {
+        self.message_queue = queue;
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {

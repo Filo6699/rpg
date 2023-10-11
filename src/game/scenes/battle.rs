@@ -6,7 +6,10 @@ use ratatui::{
     widgets::Paragraph,
 };
 
-use crate::game::battle::{Battle, BattleWinner};
+use crate::game::{
+    battle::{Battle, BattleWinner},
+    message_queue::MessageQueue,
+};
 
 use super::{stats::StatisticsScene, Scene, SharedData};
 
@@ -14,11 +17,15 @@ const SCENE_ID: i32 = 2;
 
 pub struct BattleScene {
     battle: Battle,
+    message_queue: MessageQueue,
 }
 impl BattleScene {
     pub fn new(data: &str) -> Self {
         let bat: Battle = serde_json::from_str(data).unwrap();
-        BattleScene { battle: bat }
+        BattleScene {
+            battle: bat,
+            message_queue: MessageQueue::default(),
+        }
     }
 
     pub fn scene_id() -> i32 {
@@ -29,6 +36,10 @@ impl BattleScene {
 impl Scene for BattleScene {
     fn scene_id(&self) -> i32 {
         SCENE_ID
+    }
+
+    fn set_message_queue(&mut self, queue: crate::game::message_queue::MessageQueue) {
+        self.message_queue = queue;
     }
 
     fn handle_input(&mut self, _: KeyEvent, data: &mut SharedData) {

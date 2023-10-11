@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use super::{battle::Entity, utils::MessageQueue};
+use super::{battle::Entity, message_queue::MessageQueue};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct Player {
     level: u128,
     base_health: u128,
@@ -13,7 +13,7 @@ pub struct Player {
     name: String,
 
     #[serde(skip_serializing, skip_deserializing)]
-    msg_queue: Option<MessageQueue>,
+    msg_queue: MessageQueue,
 }
 
 #[allow(unused)]
@@ -68,9 +68,8 @@ impl Player {
             self.needed_xp = Player::calculate_needed_xp(self.level);
         }
         if self.level != prev_level {
-            if let Some(q) = &mut self.msg_queue {
-                let mut queue = q.lock().unwrap();
-                queue.push("Level up!".into());
+            if let Some(q) = &mut self.msg_queue.unwrap_queue() {
+                q.push("Level up!".into());
             }
         }
     }
@@ -86,12 +85,12 @@ impl Player {
             coins: 0,
             needed_xp: Player::calculate_needed_xp(1),
 
-            msg_queue: None,
+            msg_queue: MessageQueue::default(),
         }
     }
 
     pub fn set_message_queue(&mut self, msg_queue: MessageQueue) {
-        self.msg_queue = Some(msg_queue);
+        self.msg_queue = msg_queue;
     }
 
     pub fn set_name(&mut self, new_name: String) {

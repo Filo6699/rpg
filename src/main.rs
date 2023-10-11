@@ -17,11 +17,13 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn run(terminal: &mut Terminal) -> Result<()> {
     let starting_scene = StatisticsScene::new();
-    let shared_data = Arc::new(Mutex::new(SharedData::new(
-        Player::default(),
-        starting_scene.scene_id(),
-    )));
+    let scene_id = starting_scene.scene_id();
     let mut scene_manager = SceneManager::new(starting_scene);
+
+    let mut player = Player::default();
+    player.set_message_queue(scene_manager.get_message_queue());
+    let shared_data = Arc::new(Mutex::new(SharedData::new(player, scene_id)));
+
     loop {
         if event::poll(Duration::from_millis(1000 / 60))? {
             if let Event::Key(key) = event::read()? {

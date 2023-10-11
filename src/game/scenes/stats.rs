@@ -9,6 +9,7 @@ use ratatui::{
 use crate::{
     game::{
         battle::{Battle, Entity},
+        message_queue::MessageQueue,
         utils::{calculate_bar, load_save, write_save},
     },
     Frame,
@@ -20,13 +21,22 @@ const SCENE_ID: i32 = 1;
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
-    texts: [&'static str; 5],
+    texts: [&'static str; 6],
+    message_queue: MessageQueue,
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
-            texts: ["Battle", "Change nickname", "Save", "Load", "Exit"],
+            texts: [
+                "Battle",
+                "Remove pop-up message",
+                "Change nickname",
+                "Save",
+                "Load",
+                "Exit",
+            ],
+            message_queue: MessageQueue::default(),
         }
     }
 
@@ -38,6 +48,10 @@ impl StatisticsScene {
 impl Scene for StatisticsScene {
     fn scene_id(&self) -> i32 {
         SCENE_ID
+    }
+
+    fn set_message_queue(&mut self, queue: crate::game::message_queue::MessageQueue) {
+        self.message_queue = queue;
     }
 
     fn render(&self, frame: &mut Frame, data: &SharedData) {
@@ -130,7 +144,8 @@ impl Scene for StatisticsScene {
             }
             KeyCode::Enter => match self.texts[self.choosen_text_id as usize] {
                 "Battle" => {
-                    let bat: Battle = Battle::new(&data.player_data, &Entity::default());
+                    let bat: Battle =
+                        Battle::new(&data.player_data, &Entity::new(150, 11, "Bebra"));
                     let json_battle = match serde_json::to_string(&bat) {
                         Ok(json) => json,
                         Err(err) => panic!("Wasn't able to parse battle json: {}", err),
@@ -138,6 +153,7 @@ impl Scene for StatisticsScene {
                     data.scene_data_transfer = Some(json_battle);
                     data.current_scene = BattleScene::scene_id()
                 }
+                "Remove pop-up message" => self.message_queue.pop_message(),
                 "Change nickname" => data.current_scene = 0,
                 "Save" => write_save(&data.player_data),
                 "Load" => {

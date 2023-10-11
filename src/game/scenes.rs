@@ -1,8 +1,9 @@
 use crossterm::event::KeyEvent;
+use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
 
 use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
 
-use super::player::Player;
+use super::{message_queue::MessageQueue, player::Player};
 use crate::Frame;
 
 pub mod battle;
@@ -35,6 +36,7 @@ impl SharedData {
 
 pub trait Scene {
     fn scene_id(&self) -> i32;
+    fn set_message_queue(&mut self, queue: MessageQueue);
 
     fn render(&self, frame: &mut Frame, data: &SharedData);
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData);
@@ -43,21 +45,49 @@ pub trait Scene {
 
 pub struct SceneManager {
     current_scene: Box<dyn Scene>,
+    message_queue: MessageQueue,
 }
 impl SceneManager {
     pub fn new(scene: impl Scene + 'static) -> Self {
-        SceneManager {
+        let mut manager = SceneManager {
             current_scene: Box::new(scene),
+            message_queue: MessageQueue::new(),
+        };
+        manager
+            .current_scene
+            .set_message_queue(manager.message_queue.clone());
+        manager
+    }
+
+    pub fn get_message_queue(&self) -> MessageQueue {
+        self.message_queue.clone()
+    }
+
+    fn render_message(&mut self, frame: &mut Frame, msg: String) {
+        let length = msg.len() as u16;
+        let p = Paragraph::new(msg.clone()).on_white().black().bold();
+        let area = Rect {
+            x: frame.size().width / 2 - length / 2,
+            y: frame.size().height - 1,
+            width: length,
+            height: 1,
+        };
+        frame.render_widget(p, area);
+    }
+
+    pub fn render(&mut self, frame: &mut Frame, data: &SharedData) {
+        self.current_scene.render(frame, data);
+
+        if let Some(msg) = self.message_queue.get_message() {
+            self.render_message(frame, msg)
         }
     }
 
-    pub fn render(&self, frame: &mut Frame, data: &SharedData) {
-        self.current_scene.render(frame, data);
-    }
     pub fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
         let scene = &mut self.current_scene;
         scene.handle_input(key, data);
     }
+
     pub fn update(&mut self, data: &mut SharedData) {
         self.current_scene.update(data);
 
@@ -81,6 +111,9 @@ impl SceneManager {
                 }
                 _ => panic!("Not valid scene_id"),
             }
+
+            self.current_scene
+                .set_message_queue(self.message_queue.clone())
         }
     }
 }

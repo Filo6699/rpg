@@ -1,12 +1,10 @@
+use super::player::Player;
 use std::{
     env,
     fs::{self, File},
     io::{Read, Write},
     path::Path,
-    sync::{Arc, Mutex},
 };
-pub type MessageQueue = Arc<Mutex<Vec<String>>>;
-use super::player::Player;
 
 const SAVE_PATH: &str = "/YAPPY";
 
