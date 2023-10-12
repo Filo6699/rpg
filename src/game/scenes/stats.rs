@@ -170,7 +170,5 @@ impl Scene for StatisticsScene {
         }
     }
 
-    fn update(&mut self, data: &mut SharedData) {
-        data.tick += 1;
-    }
+    fn update(&mut self, _: &mut SharedData) {}
 }

@@ -12,7 +12,6 @@ pub mod username;
 
 pub struct SharedData {
     player_data: Player,
-    tick: u32,
     current_scene: i32,
     scene_data_transfer: Option<String>,
     terminate: bool,
@@ -22,7 +21,6 @@ impl SharedData {
     pub fn new(player: Player, scene_id: i32) -> Self {
         SharedData {
             player_data: player,
-            tick: 0,
             current_scene: scene_id,
             scene_data_transfer: None,
             terminate: false,
