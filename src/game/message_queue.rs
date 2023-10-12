@@ -36,6 +36,13 @@ impl MessageQueue {
         false
     }
 
+    pub fn add_message(&self, message: String) {
+        if let Some(queue) = &self.msgs {
+            let mut unwrapped = queue.lock().unwrap();
+            unwrapped.push(message)
+        }
+    }
+
     pub fn pop_message(&mut self) {
         if let Some(queue) = &self.msgs {
             let mut unwrapped = queue.lock().unwrap();

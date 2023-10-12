@@ -1,13 +1,14 @@
-use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
+use self::{battle::BattleScene, shop::ShopScene, stats::StatisticsScene, username::UsernameScene};
 use super::{message_queue::MessageQueue, player::Player, utils::render_border_type};
 use crate::Frame;
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
 use std::cmp::max;
 
-pub mod battle;
+mod battle;
+mod shop;
 pub mod stats;
-pub mod username;
+mod username;
 
 pub struct SharedData {
     player_data: Player,
@@ -132,6 +133,9 @@ impl SceneManager {
                         }
                     };
                     data.scene_data_transfer = None;
+                }
+                _id if _id == ShopScene::scene_id() => {
+                    self.current_scene = Box::new(ShopScene::new())
                 }
                 _ => panic!("Not valid scene_id"),
             }

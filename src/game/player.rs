@@ -1,4 +1,4 @@
-use super::{battle::Entity, message_queue::MessageQueue};
+use super::{battle::Entity, equipment::Equipment, message_queue::MessageQueue};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -10,6 +10,7 @@ pub struct Player {
     needed_xp: u128,
     coins: u128,
     name: String,
+    equipment: Equipment,
 
     #[serde(skip_serializing, skip_deserializing)]
     msg_queue: MessageQueue,
@@ -56,6 +57,12 @@ impl Player {
         self.coins += coins;
     }
 
+    pub fn remove_coins(&mut self, remove_amount: u128) {
+        if remove_amount <= self.coins {
+            self.coins -= remove_amount
+        }
+    }
+
     pub fn add_xp(&mut self, xp: u128) {
         self.xp += xp;
         let prev_level = self.level;
@@ -82,6 +89,7 @@ impl Player {
             xp: 0,
             coins: 0,
             needed_xp: Player::calculate_needed_xp(1),
+            equipment: Equipment::default(),
 
             msg_queue: MessageQueue::default(),
         }
@@ -97,6 +105,14 @@ impl Player {
 
     pub fn set_name(&mut self, new_name: String) {
         self.name = new_name;
+    }
+
+    pub fn get_equipment(&self) -> &Equipment {
+        &self.equipment
+    }
+
+    pub fn get_mut_equipment(&mut self) -> &mut Equipment {
+        &mut self.equipment
     }
 
     pub fn to_entity(&self) -> Entity {

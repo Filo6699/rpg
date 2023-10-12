@@ -1,4 +1,4 @@
-use super::{battle::BattleScene, Scene, SharedData};
+use super::{battle::BattleScene, shop::ShopScene, username::UsernameScene, Scene, SharedData};
 use crate::{
     game::{
         battle::{Battle, Entity},
@@ -19,14 +19,14 @@ const SCENE_ID: i32 = 1;
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
-    texts: [&'static str; 5],
+    texts: [&'static str; 6],
     message_queue: MessageQueue,
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
-            texts: ["Battle", "Change nickname", "Save", "Load", "Exit"],
+            texts: ["Battle", "Shop", "Change nickname", "Save", "Load", "Exit"],
             message_queue: MessageQueue::default(),
         }
     }
@@ -88,6 +88,7 @@ impl Scene for StatisticsScene {
                 Style::default().bold().fg(Color::LightYellow),
             ),
         ]);
+
         let mut buttons_spans: Vec<Span<'_>> = vec![];
         for text_id in 0..self.texts.len() {
             if text_id > 0 {
@@ -100,6 +101,19 @@ impl Scene for StatisticsScene {
             buttons_spans.push(Span::styled(self.texts[text_id].to_string(), style));
         }
         let buttons = Line::from(buttons_spans);
+
+        let equipment = Line::from("       | Equipment");
+        let sword = match &data.player_data.get_equipment().sword {
+            Some(item) => item.name.clone(),
+            None => "".into(),
+        };
+        let equipment_sword = Line::from(format!("Sword  | {}", sword));
+        let shield = match &data.player_data.get_equipment().shield {
+            Some(item) => item.name.clone(),
+            None => "".into(),
+        };
+        let equipment_shield = Line::from(format!("Shield | {}", shield));
+
         let paragraph = Paragraph::new(vec![
             playername,
             empty.clone(),
@@ -110,6 +124,10 @@ impl Scene for StatisticsScene {
             xpbar,
             empty.clone(),
             buttons,
+            empty.clone(),
+            equipment,
+            equipment_sword,
+            equipment_shield,
         ]);
         let area = Rect {
             x: 0,
@@ -143,7 +161,8 @@ impl Scene for StatisticsScene {
                     data.scene_data_transfer = Some(json_battle);
                     data.current_scene = BattleScene::scene_id()
                 }
-                "Change nickname" => data.current_scene = 0,
+                "Shop" => data.current_scene = ShopScene::scene_id(),
+                "Change nickname" => data.current_scene = UsernameScene::scene_id(),
                 "Save" => write_save(&data.player_data),
                 "Load" => {
                     if let Some(saved_data) = load_save() {
