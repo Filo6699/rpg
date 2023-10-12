@@ -1,3 +1,8 @@
+use super::{stats::StatisticsScene, Scene, SharedData};
+use crate::game::{
+    battle::{Battle, BattleWinner},
+    message_queue::MessageQueue,
+};
 use crossterm::event::KeyEvent;
 use ratatui::{
     prelude::Rect,
@@ -5,13 +10,6 @@ use ratatui::{
     text::{Line, Span},
     widgets::Paragraph,
 };
-
-use crate::game::{
-    battle::{Battle, BattleWinner},
-    message_queue::MessageQueue,
-};
-
-use super::{stats::StatisticsScene, Scene, SharedData};
 
 const SCENE_ID: i32 = 2;
 
@@ -47,7 +45,6 @@ impl Scene for BattleScene {
         if let Some(winner) = self.battle.get_winner() {
             let xp_gain: u128;
             let coins_gain: u128;
-
             match winner {
                 BattleWinner::Player(_) => {
                     xp_gain = 120;
@@ -58,21 +55,18 @@ impl Scene for BattleScene {
                     coins_gain = 0;
                 }
             }
-
             data.player_data.add_xp(xp_gain);
             data.player_data.add_coins(coins_gain);
-
             data.current_scene = StatisticsScene::scene_id();
         }
     }
 
     fn render(&self, frame: &mut crate::Frame, _: &SharedData) {
         let mut lines: Vec<Line<'_>> = vec![];
-
         let player = &self.battle.player;
         let enemy = &self.battle.enemy;
-
         let empty = Line::from("");
+
         lines.push(Line::from(vec![
             player.get_name().bold(),
             Span::raw(if self.battle.is_players_turn() {
@@ -85,9 +79,7 @@ impl Scene for BattleScene {
             Span::raw(player.get_health().to_string()),
             Span::styled(" HP", Style::default().light_red().bold()),
         ]));
-
         lines.push(empty.clone());
-
         lines.push(Line::from(vec![
             enemy.get_name().bold(),
             Span::raw(if !self.battle.is_players_turn() {

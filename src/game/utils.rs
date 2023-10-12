@@ -1,11 +1,9 @@
+use super::player::Player;
+use crate::Frame;
 use ratatui::{
     prelude::{Alignment, Rect},
     widgets::{block::Title, Block, BorderType, Borders, Paragraph},
 };
-
-use crate::Frame;
-
-use super::player::Player;
 use std::{
     env,
     fs::{self, File},

@@ -1,11 +1,4 @@
-use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{
-    prelude::Rect,
-    style::{Color, Style, Stylize},
-    text::{Line, Span},
-    widgets::Paragraph,
-};
-
+use super::{battle::BattleScene, Scene, SharedData};
 use crate::{
     game::{
         battle::{Battle, Entity},
@@ -14,8 +7,13 @@ use crate::{
     },
     Frame,
 };
-
-use super::{battle::BattleScene, Scene, SharedData};
+use crossterm::event::{KeyCode, KeyEvent};
+use ratatui::{
+    prelude::Rect,
+    style::{Color, Style, Stylize},
+    text::{Line, Span},
+    widgets::Paragraph,
+};
 
 const SCENE_ID: i32 = 1;
 
@@ -101,7 +99,6 @@ impl Scene for StatisticsScene {
             };
             buttons_spans.push(Span::styled(self.texts[text_id].to_string(), style));
         }
-
         let buttons = Line::from(buttons_spans);
         let paragraph = Paragraph::new(vec![
             playername,

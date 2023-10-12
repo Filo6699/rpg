@@ -1,12 +1,9 @@
-use std::cmp::max;
-
-use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
-
 use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
-
 use super::{message_queue::MessageQueue, player::Player, utils::render_border_type};
 use crate::Frame;
+use crossterm::event::{KeyCode, KeyEvent};
+use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
+use std::cmp::max;
 
 pub mod battle;
 pub mod stats;

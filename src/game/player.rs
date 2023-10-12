@@ -1,6 +1,5 @@
-use serde::{Deserialize, Serialize};
-
 use super::{battle::Entity, message_queue::MessageQueue};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Player {
@@ -16,7 +15,6 @@ pub struct Player {
     msg_queue: MessageQueue,
 }
 
-#[allow(unused)]
 impl Player {
     pub fn get_level(&self) -> u128 {
         self.level

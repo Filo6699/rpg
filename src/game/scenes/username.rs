@@ -1,9 +1,7 @@
+use super::{stats::StatisticsScene, Scene, SharedData};
+use crate::game::message_queue::MessageQueue;
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{prelude::Rect, widgets::Paragraph};
-
-use crate::game::message_queue::MessageQueue;
-
-use super::{stats::StatisticsScene, Scene, SharedData};
 
 const SCENE_ID: i32 = 0;
 
