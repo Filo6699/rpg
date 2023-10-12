@@ -28,6 +28,14 @@ impl MessageQueue {
         None
     }
 
+    pub fn has_message(&self) -> bool {
+        if let Some(queue) = &self.msgs {
+            let unwrapped = queue.lock().unwrap();
+            return unwrapped.is_empty();
+        }
+        false
+    }
+
     pub fn pop_message(&mut self) {
         if let Some(queue) = &self.msgs {
             let mut unwrapped = queue.lock().unwrap();

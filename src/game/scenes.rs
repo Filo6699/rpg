@@ -1,4 +1,6 @@
-use crossterm::event::KeyEvent;
+use std::cmp::max;
+
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
 
 use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
@@ -44,12 +46,16 @@ pub trait Scene {
 pub struct SceneManager {
     current_scene: Box<dyn Scene>,
     message_queue: MessageQueue,
+    lifetime: u128,
+    message_highlight_ticks: u8,
 }
 impl SceneManager {
     pub fn new(scene: impl Scene + 'static) -> Self {
         let mut manager = SceneManager {
             current_scene: Box::new(scene),
             message_queue: MessageQueue::new(),
+            lifetime: 0,
+            message_highlight_ticks: 0,
         };
         manager
             .current_scene
@@ -62,9 +68,21 @@ impl SceneManager {
     }
 
     fn render_message(&mut self, frame: &mut Frame, msg: &String) {
-        let title = "Message";
-        let length = std::cmp::max(msg.len(), title.len()) as u16 + 2;
-        let p = Paragraph::new(msg.clone()).bold();
+        let altername_title = "Press X | Enter | Esc to close";
+        let default_title = "Message";
+        let mut p = Paragraph::new(msg.clone()).bold();
+
+        let title = if self.message_highlight_ticks > 0 {
+            self.message_highlight_ticks -= 1;
+            if self.message_highlight_ticks / 10 % 2 == 1 {
+                p = p.on_dark_gray();
+            }
+            altername_title
+        } else {
+            default_title
+        };
+
+        let length = max(msg.len(), max(altername_title.len(), default_title.len())) as u16 + 4;
         let area = Rect {
             x: frame.size().width / 2 - length / 2,
             y: frame.size().height - 5,
@@ -83,11 +101,21 @@ impl SceneManager {
     }
 
     pub fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
-        let scene = &mut self.current_scene;
-        scene.handle_input(key, data);
+        if !self.message_queue.has_message() {
+            let key_codes = [KeyCode::Enter, KeyCode::Char('x'), KeyCode::Esc];
+            if key_codes.contains(&key.code) {
+                self.message_queue.pop_message()
+            } else {
+                self.message_highlight_ticks = 60;
+            }
+        } else {
+            let scene = &mut self.current_scene;
+            scene.handle_input(key, data);
+        }
     }
 
     pub fn update(&mut self, data: &mut SharedData) {
+        self.lifetime += 1;
         self.current_scene.update(data);
 
         if self.current_scene.scene_id() != data.current_scene {

@@ -21,21 +21,14 @@ const SCENE_ID: i32 = 1;
 
 pub struct StatisticsScene {
     choosen_text_id: i32,
-    texts: [&'static str; 6],
+    texts: [&'static str; 5],
     message_queue: MessageQueue,
 }
 impl StatisticsScene {
     pub fn new() -> Self {
         StatisticsScene {
             choosen_text_id: 0,
-            texts: [
-                "Battle",
-                "Remove pop-up message",
-                "Change nickname",
-                "Save",
-                "Load",
-                "Exit",
-            ],
+            texts: ["Battle", "Change nickname", "Save", "Load", "Exit"],
             message_queue: MessageQueue::default(),
         }
     }
@@ -153,7 +146,6 @@ impl Scene for StatisticsScene {
                     data.scene_data_transfer = Some(json_battle);
                     data.current_scene = BattleScene::scene_id()
                 }
-                "Remove pop-up message" => self.message_queue.pop_message(),
                 "Change nickname" => data.current_scene = 0,
                 "Save" => write_save(&data.player_data),
                 "Load" => {
