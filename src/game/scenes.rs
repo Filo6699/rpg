@@ -3,7 +3,7 @@ use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
 
 use self::{battle::BattleScene, stats::StatisticsScene, username::UsernameScene};
 
-use super::{message_queue::MessageQueue, player::Player};
+use super::{message_queue::MessageQueue, player::Player, utils::render_border_type};
 use crate::Frame;
 
 pub mod battle;
@@ -63,23 +63,24 @@ impl SceneManager {
         self.message_queue.clone()
     }
 
-    fn render_message(&mut self, frame: &mut Frame, msg: String) {
-        let length = msg.len() as u16;
-        let p = Paragraph::new(msg.clone()).on_white().black().bold();
+    fn render_message(&mut self, frame: &mut Frame, msg: &String) {
+        let title = "Message";
+        let length = std::cmp::max(msg.len(), title.len()) as u16 + 2;
+        let p = Paragraph::new(msg.clone()).bold();
         let area = Rect {
             x: frame.size().width / 2 - length / 2,
-            y: frame.size().height - 1,
+            y: frame.size().height - 5,
             width: length,
-            height: 1,
+            height: 5,
         };
-        frame.render_widget(p, area);
+        render_border_type(&p, title, frame, area);
     }
 
     pub fn render(&mut self, frame: &mut Frame, data: &SharedData) {
         self.current_scene.render(frame, data);
 
         if let Some(msg) = self.message_queue.get_message() {
-            self.render_message(frame, msg)
+            self.render_message(frame, &msg)
         }
     }
 

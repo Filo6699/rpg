@@ -1,3 +1,10 @@
+use ratatui::{
+    prelude::{Alignment, Rect},
+    widgets::{block::Title, Block, BorderType, Borders, Paragraph},
+};
+
+use crate::Frame;
+
 use super::player::Player;
 use std::{
     env,
@@ -80,4 +87,12 @@ pub fn calculate_bar(value: u128, max_value: u128, precision: u32) -> (String, S
         }
     }
     (filled, empty)
+}
+
+pub fn render_border_type(paragraph: &Paragraph, title: &str, frame: &mut Frame, area: Rect) {
+    let block = Block::new()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .title(Title::from(title.clone()).alignment(Alignment::Right));
+    frame.render_widget(paragraph.clone().block(block), area);
 }

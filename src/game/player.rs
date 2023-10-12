@@ -89,6 +89,10 @@ impl Player {
         }
     }
 
+    pub fn get_message_queue(&self) -> MessageQueue {
+        self.msg_queue.clone()
+    }
+
     pub fn set_message_queue(&mut self, msg_queue: MessageQueue) {
         self.msg_queue = msg_queue;
     }

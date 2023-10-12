@@ -158,7 +158,9 @@ impl Scene for StatisticsScene {
                 "Save" => write_save(&data.player_data),
                 "Load" => {
                     if let Some(saved_data) = load_save() {
-                        data.player_data = saved_data
+                        let msg_queue = data.player_data.get_message_queue();
+                        data.player_data = saved_data;
+                        data.player_data.set_message_queue(msg_queue);
                     }
                 }
                 "Exit" => data.terminate = true,
