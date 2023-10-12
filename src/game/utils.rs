@@ -55,7 +55,7 @@ fn linux_load() -> Option<Player> {
         let parsed: Result<Player, serde_json::Error> = serde_json::from_str(&file_content);
         match parsed {
             Ok(plr) => return Some(plr),
-            Err(_) => panic!("aaaaaaa"),
+            Err(err) => panic!("Corrupted save file. {}", err),
         }
     }
     None
