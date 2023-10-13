@@ -31,7 +31,7 @@ pub struct ShopScene {
 impl ShopScene {
     pub fn new() -> Self {
         let sword = Item {
-            name: "Sword".into(),
+            name: "Sample Sword".into(),
             item_type: ItemType::Sword,
             cost: 10,
             properties: ItemProperties {
@@ -40,12 +40,12 @@ impl ShopScene {
             },
         };
         let shield = Item {
-            name: "Shield".into(),
+            name: "Sample Shield".into(),
             item_type: ItemType::Shield,
             cost: 10,
             properties: ItemProperties {
                 damage: 0,
-                defence: 26,
+                defence: 4,
             },
         };
         ShopScene {
