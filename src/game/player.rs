@@ -116,6 +116,11 @@ impl Player {
     }
 
     pub fn to_entity(&self) -> Entity {
-        Entity::new(self.base_health, self.base_damage, &self.name)
+        Entity::new(
+            self.base_health,
+            self.base_damage,
+            &self.name,
+            Some(self.equipment.clone()),
+        )
     }
 }

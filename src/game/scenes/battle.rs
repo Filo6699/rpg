@@ -1,4 +1,7 @@
-use super::{stats::StatisticsScene, Scene, SharedData};
+use super::{
+    gains::{Gains, GainsScene},
+    Scene, SharedData,
+};
 use crate::game::{
     battle::{Battle, BattleWinner},
     message_queue::MessageQueue,
@@ -45,19 +48,35 @@ impl Scene for BattleScene {
         if let Some(winner) = self.battle.get_winner() {
             let xp_gain: u128;
             let coins_gain: u128;
+            let won: bool;
+            let left_health: u128;
             match winner {
                 BattleWinner::Player(_) => {
                     xp_gain = 120;
                     coins_gain = 15;
+                    won = true;
+                    left_health = self.battle.player.get_health();
                 }
                 BattleWinner::Enemy(_) => {
                     xp_gain = 50;
                     coins_gain = 0;
+                    won = false;
+                    left_health = self.battle.enemy.get_health();
                 }
             }
             data.player_data.add_xp(xp_gain);
             data.player_data.add_coins(coins_gain);
-            data.current_scene = StatisticsScene::scene_id();
+
+            let gains = Gains {
+                player_won: won,
+                enemy_name: self.battle.enemy.get_name().to_string(),
+                left_hp: left_health,
+
+                xp: xp_gain,
+                coins: coins_gain,
+            };
+            data.scene_data_transfer = Some(serde_json::to_string(&gains).unwrap());
+            data.current_scene = GainsScene::scene_id();
         }
     }
 

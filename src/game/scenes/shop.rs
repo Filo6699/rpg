@@ -1,6 +1,6 @@
 use super::{stats::StatisticsScene, Scene, SharedData};
 use crate::game::{
-    item::{Item, ItemType},
+    item::{Item, ItemProperties, ItemType},
     message_queue::MessageQueue,
 };
 use crossterm::event::{KeyCode, KeyEvent};
@@ -34,11 +34,19 @@ impl ShopScene {
             name: "Sword".into(),
             item_type: ItemType::Sword,
             cost: 10,
+            properties: ItemProperties {
+                damage: 10,
+                defence: 0,
+            },
         };
         let shield = Item {
             name: "Shield".into(),
             item_type: ItemType::Shield,
             cost: 10,
+            properties: ItemProperties {
+                damage: 0,
+                defence: 26,
+            },
         };
         ShopScene {
             items: vec![sword, shield],

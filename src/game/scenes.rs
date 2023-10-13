@@ -1,4 +1,7 @@
-use self::{battle::BattleScene, shop::ShopScene, stats::StatisticsScene, username::UsernameScene};
+use self::{
+    battle::BattleScene, gains::GainsScene, shop::ShopScene, stats::StatisticsScene,
+    username::UsernameScene,
+};
 use super::{message_queue::MessageQueue, player::Player, utils::render_border_type};
 use crate::Frame;
 use crossterm::event::{KeyCode, KeyEvent};
@@ -6,6 +9,7 @@ use ratatui::{prelude::Rect, style::Stylize, widgets::Paragraph};
 use std::cmp::max;
 
 mod battle;
+mod gains;
 mod shop;
 pub mod stats;
 mod username;
@@ -136,6 +140,16 @@ impl SceneManager {
                 }
                 _id if _id == ShopScene::scene_id() => {
                     self.current_scene = Box::new(ShopScene::new())
+                }
+                _id if _id == GainsScene::scene_id() => {
+                    self.current_scene = {
+                        if let Some(transfer) = &data.scene_data_transfer {
+                            Box::new(GainsScene::new(transfer))
+                        } else {
+                            panic!("No data provided to create gains screen");
+                        }
+                    };
+                    data.scene_data_transfer = None;
                 }
                 _ => panic!("Not valid scene_id"),
             }

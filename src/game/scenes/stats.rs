@@ -153,7 +153,7 @@ impl Scene for StatisticsScene {
             KeyCode::Enter => match self.texts[self.choosen_text_id as usize] {
                 "Battle" => {
                     let bat: Battle =
-                        Battle::new(&data.player_data, &Entity::new(150, 11, "Bebra"));
+                        Battle::new(&data.player_data, &Entity::new(150, 11, "Bebra", None));
                     let json_battle = match serde_json::to_string(&bat) {
                         Ok(json) => json,
                         Err(err) => panic!("Wasn't able to parse battle json: {}", err),
