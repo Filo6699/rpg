@@ -3,7 +3,7 @@ use crate::game::{
     item::{Item, ItemProperties, ItemType},
     message_queue::MessageQueue,
 };
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::*,
     style::{Color, Style},
@@ -88,6 +88,9 @@ impl Scene for ShopScene {
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
         match self.stage {
             Stage::ItemSelecting => match key.code {
                 KeyCode::Up => {

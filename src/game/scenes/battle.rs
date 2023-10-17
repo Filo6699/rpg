@@ -6,7 +6,7 @@ use crate::game::{
     battle::{Battle, BattleWinner},
     message_queue::MessageQueue,
 };
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::Rect,
     style::{Style, Stylize},
@@ -21,8 +21,13 @@ pub struct BattleScene {
     message_queue: MessageQueue,
 }
 impl BattleScene {
-    pub fn new(data: &str) -> Self {
-        let bat: Battle = serde_json::from_str(data).unwrap();
+    pub fn new(data: &SharedData) -> Self {
+        let str_data = if let Some(data) = &data.scene_data_transfer {
+            data
+        } else {
+            panic!("No data provided to create battle screen");
+        };
+        let bat: Battle = serde_json::from_str(str_data).unwrap();
         BattleScene {
             battle: bat,
             message_queue: MessageQueue::default(),
@@ -43,7 +48,10 @@ impl Scene for BattleScene {
         self.message_queue = queue;
     }
 
-    fn handle_input(&mut self, _: KeyEvent, data: &mut SharedData) {
+    fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
         self.battle.tick();
         if let Some(winner) = self.battle.get_winner() {
             let xp_gain: u128;

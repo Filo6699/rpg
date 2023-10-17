@@ -1,4 +1,5 @@
 use crossterm::{
+    event::PopKeyboardEnhancementFlags,
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -14,7 +15,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 pub fn setup_terminal() -> Result<Terminal> {
     enable_raw_mode()?;
     let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen)?;
+    execute!(stdout, EnterAlternateScreen, PopKeyboardEnhancementFlags)?;
     let backend = CrosstermBackend::new(stdout);
     let terminal = Terminal::new(backend)?;
     Ok(terminal)

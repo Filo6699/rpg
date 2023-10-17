@@ -1,6 +1,6 @@
 use super::{stats::StatisticsScene, Scene, SharedData};
 use crate::game::message_queue::MessageQueue;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::Rect,
     style::{Style, Stylize},
@@ -26,8 +26,13 @@ pub struct GainsScene {
     message_queue: MessageQueue,
 }
 impl GainsScene {
-    pub fn new(data: &str) -> Self {
-        let g: Gains = serde_json::from_str(data).unwrap();
+    pub fn new(data: &SharedData) -> Self {
+        let str_data = if let Some(data) = &data.scene_data_transfer {
+            data
+        } else {
+            panic!("No data provided to create gains screen");
+        };
+        let g: Gains = serde_json::from_str(str_data).unwrap();
         GainsScene {
             gains: g,
             message_queue: MessageQueue::default(),
@@ -49,6 +54,9 @@ impl Scene for GainsScene {
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
         if let KeyCode::Enter = key.code {
             data.current_scene = StatisticsScene::scene_id()
         }

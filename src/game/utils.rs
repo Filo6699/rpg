@@ -79,9 +79,9 @@ pub fn calculate_bar(value: u128, max_value: u128, precision: u32) -> (String, S
     let mut empty = String::from("");
     for i in 0..precision {
         if percentage > i.into() {
-            filled.push('■');
+            filled.push('▀');
         } else {
-            empty.push('■');
+            empty.push('▀');
         }
     }
     (filled, empty)
@@ -93,4 +93,13 @@ pub fn render_border_type(paragraph: &Paragraph, title: &str, frame: &mut Frame,
         .border_type(BorderType::Rounded)
         .title(Title::from(title.clone()).alignment(Alignment::Right));
     frame.render_widget(paragraph.clone().block(block), area);
+}
+
+pub fn get_full_size_rect(frame: &Frame) -> Rect {
+    Rect {
+        x: 0,
+        y: 0,
+        width: frame.size().width,
+        height: frame.size().height,
+    }
 }

@@ -1,6 +1,6 @@
 use self::{
-    battle::BattleScene, gains::GainsScene, shop::ShopScene, stats::StatisticsScene,
-    username::UsernameScene,
+    battle::BattleScene, gains::GainsScene, new_battle::NBattleScene, shop::ShopScene,
+    stats::StatisticsScene, username::UsernameScene,
 };
 use super::{message_queue::MessageQueue, player::Player, utils::render_border_type};
 use crate::Frame;
@@ -10,6 +10,7 @@ use std::cmp::max;
 
 mod battle;
 mod gains;
+mod new_battle;
 mod shop;
 pub mod stats;
 mod username;
@@ -129,30 +130,20 @@ impl SceneManager {
                     self.current_scene = Box::new(StatisticsScene::new())
                 }
                 _id if _id == BattleScene::scene_id() => {
-                    self.current_scene = {
-                        if let Some(transfer) = &data.scene_data_transfer {
-                            Box::new(BattleScene::new(transfer))
-                        } else {
-                            panic!("No data provided to create battle screen");
-                        }
-                    };
-                    data.scene_data_transfer = None;
+                    self.current_scene = Box::new(BattleScene::new(data));
                 }
                 _id if _id == ShopScene::scene_id() => {
                     self.current_scene = Box::new(ShopScene::new())
                 }
                 _id if _id == GainsScene::scene_id() => {
-                    self.current_scene = {
-                        if let Some(transfer) = &data.scene_data_transfer {
-                            Box::new(GainsScene::new(transfer))
-                        } else {
-                            panic!("No data provided to create gains screen");
-                        }
-                    };
-                    data.scene_data_transfer = None;
+                    self.current_scene = Box::new(GainsScene::new(data))
+                }
+                _id if _id == NBattleScene::scene_id() => {
+                    self.current_scene = Box::new(NBattleScene::new(data))
                 }
                 _ => panic!("Not valid scene_id"),
             }
+            data.scene_data_transfer = None;
 
             self.current_scene
                 .set_message_queue(self.message_queue.clone())

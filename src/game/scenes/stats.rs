@@ -1,4 +1,7 @@
-use super::{battle::BattleScene, shop::ShopScene, username::UsernameScene, Scene, SharedData};
+use super::{
+    battle::BattleScene, new_battle::NBattleScene, shop::ShopScene, username::UsernameScene, Scene,
+    SharedData,
+};
 use crate::{
     game::{
         battle::{Battle, Entity},
@@ -7,7 +10,7 @@ use crate::{
     },
     Frame,
 };
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::Rect,
     style::{Color, Style, Stylize},
@@ -72,10 +75,10 @@ impl Scene for StatisticsScene {
         let (filled, missing) =
             calculate_bar(data.player_data.get_xp(), data.player_data.get_nxp(), 10);
         let xpbar = Line::from(vec![
-            Span::raw("       | ["),
+            Span::raw("       | "),
             Span::styled(filled, Style::default().bold().fg(Color::Gray)),
             Span::styled(missing, Style::default().bold().fg(Color::DarkGray)),
-            Span::raw("]  "),
+            Span::raw("  "),
             Span::raw(data.player_data.get_xp().to_string()),
             Span::styled("/", Style::default().fg(Color::DarkGray)),
             Span::raw(data.player_data.get_nxp().to_string()),
@@ -139,6 +142,9 @@ impl Scene for StatisticsScene {
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
         match key.code {
             KeyCode::Right => {
                 if self.choosen_text_id + 1 < (self.texts.len() as i32) {
@@ -152,14 +158,15 @@ impl Scene for StatisticsScene {
             }
             KeyCode::Enter => match self.texts[self.choosen_text_id as usize] {
                 "Battle" => {
-                    let bat: Battle =
-                        Battle::new(&data.player_data, &Entity::new(150, 11, "Bebra", None));
-                    let json_battle = match serde_json::to_string(&bat) {
-                        Ok(json) => json,
-                        Err(err) => panic!("Wasn't able to parse battle json: {}", err),
-                    };
-                    data.scene_data_transfer = Some(json_battle);
-                    data.current_scene = BattleScene::scene_id()
+                    // let bat: Battle =
+                    //     Battle::new(&data.player_data, &Entity::new(150, 11, "Bebra", None));
+                    // let json_battle = match serde_json::to_string(&bat) {
+                    //     Ok(json) => json,
+                    //     Err(err) => panic!("Wasn't able to parse battle json: {}", err),
+                    // };
+                    // data.scene_data_transfer = Some(json_battle);
+                    // data.current_scene = BattleScene::scene_id()
+                    data.current_scene = NBattleScene::scene_id()
                 }
                 "Shop" => data.current_scene = ShopScene::scene_id(),
                 "Change nickname" => data.current_scene = UsernameScene::scene_id(),

@@ -1,6 +1,6 @@
 use super::{stats::StatisticsScene, Scene, SharedData};
 use crate::game::message_queue::MessageQueue;
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{prelude::Rect, widgets::Paragraph};
 
 const SCENE_ID: i32 = 0;
@@ -32,8 +32,16 @@ impl Scene for UsernameScene {
     }
 
     fn handle_input(&mut self, key: KeyEvent, data: &mut SharedData) {
-        if let KeyCode::Char(key) = key.code {
-            self.name.push(key);
+        if key.kind != KeyEventKind::Press {
+            return;
+        }
+        if let KeyCode::Char(nkey) = key.code {
+            if key.modifiers.contains(KeyModifiers::SHIFT) {
+                let nkey = (nkey as u8) - 32;
+                self.name.push(nkey as char);
+            } else {
+                self.name.push(nkey);
+            }
         }
         if key.code == KeyCode::Backspace {
             self.name.pop();
