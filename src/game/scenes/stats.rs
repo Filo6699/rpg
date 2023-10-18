@@ -1,10 +1,8 @@
 use super::{
-    battle::BattleScene, new_battle::NBattleScene, shop::ShopScene, username::UsernameScene, Scene,
-    SharedData,
+    new_battle::NBattleScene, shop::ShopScene, username::UsernameScene, Scene, SharedData,
 };
 use crate::{
     game::{
-        battle::{Battle, Entity},
         message_queue::MessageQueue,
         utils::{calculate_bar, load_save, write_save},
     },

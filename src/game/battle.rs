@@ -1,3 +1,4 @@
+#![allow(unused)]
 use super::{equipment::Equipment, player::Player};
 use serde::{Deserialize, Serialize};
 

@@ -110,14 +110,14 @@ impl NBattleScene {
     }
 
     fn generate_grid(&mut self) {
-        let row = 27;
+        let row = 30;
         for column in 0..self.grid_size.width {
             self.grid[row][column] = Tile::Full;
         }
 
         for x in 0..self.grid_size.width {
-            for y in 0..7 {
-                if self.rng_thread.gen_range(0..50) == 0 {
+            for y in 0..16 {
+                if self.rng_thread.gen_range(0..100) == 0 {
                     for offset in -3..4 {
                         let offset: i16 = offset;
                         if offset.is_negative() && offset.unsigned_abs() as usize > x {
@@ -128,7 +128,7 @@ impl NBattleScene {
                         } else {
                             x + offset as usize
                         };
-                        self.set_cell(x, y * 4, Tile::Full)
+                        self.set_cell(x, y * 2, Tile::Full)
                     }
                 }
             }
@@ -142,7 +142,7 @@ impl NBattleScene {
             for cell in row {
                 let ch = match cell {
                     Tile::Empty => ' ',
-                    Tile::Full => '■',
+                    Tile::Full => '▀',
                 };
                 rend.push(ch);
             }
@@ -172,12 +172,16 @@ impl NBattleScene {
     }
 
     fn render_entities(&self, frame: &mut crate::Frame) {
-        let block = Block::default().title("X").fg(Color::LightRed).bold();
-        let area: Rect = self.enemy_state.pos.into();
+        let block = Block::default().title("x").fg(Color::LightRed).bold();
+        let mut area: Rect = self.enemy_state.pos.into();
+        area.x += (frame.size().width - self.grid_size.width as u16) / 2;
+        area.y += (frame.size().height - self.grid_size.height as u16) / 2;
         frame.render_widget(block, area);
 
         let block = Block::default().title("O").fg(Color::LightGreen).bold();
-        let area: Rect = self.player_state.pos.into();
+        let mut area: Rect = self.player_state.pos.into();
+        area.x += (frame.size().width - self.grid_size.width as u16) / 2;
+        area.y += (frame.size().height - self.grid_size.height as u16) / 2;
         frame.render_widget(block, area);
     }
 
