@@ -143,7 +143,6 @@ impl SceneManager {
                 }
                 _ => panic!("Not valid scene_id"),
             }
-            data.scene_data_transfer = None;
 
             self.current_scene
                 .set_message_queue(self.message_queue.clone())
